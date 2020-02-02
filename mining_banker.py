@@ -44,14 +44,6 @@ TFNET_OPTIONS = {
 TF_NET = TFNet(TFNET_OPTIONS)
 TF_NET.load_from_ckpt()
 
-# Timing
-CURRENT_TIME = time.time()
-def log_time(log_str):
-    global CURRENT_TIME
-    print("%s: %s" % (log_str, time.time() - CURRENT_TIME))
-    CURRENT_TIME = time.time()
-
-
 
 
 # Drawing Bounds
@@ -163,7 +155,6 @@ def is_in_mine():
 
 
 if __name__ == "__main__":
-
     # Bot pre-checks
     ################
 

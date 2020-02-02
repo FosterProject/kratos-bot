@@ -53,9 +53,10 @@ def update_moving():
     threshold = 0.9
     loc = np.where(res >= threshold)
 
-    for pt in zip(*loc[::-1]):
-        cv2.rectangle(last_map_gray, pt, (pt[0] + w, pt[1] + h), (25, 0, 255), 2)
-    cv2.imwrite('debug/is_walking_outcome.png', last_map_gray)
+    if config.DEBUG:
+        for pt in zip(*loc[::-1]):
+            cv2.rectangle(last_map_gray, pt, (pt[0] + w, pt[1] + h), (25, 0, 255), 2)
+        cv2.imwrite('debug/is_walking_outcome.png', last_map_gray)
 
     LAST_MAP = current_map
     if len(list(zip(*loc[::-1]))) < 1:
@@ -65,9 +66,7 @@ def update_moving():
             MOVEMENT_IDLE_START_TIME = time.time()
 
         if time.time() - MOVEMENT_IDLE_START_TIME >= MOVEMENT_IDLE_MAX:
-            print("NOT MOVING")
             set_is_moving(False)
-
 
 
 def set_is_moving(val):
@@ -88,7 +87,6 @@ def analyse_map(img_path):
     res = cv2.matchTemplate(current_map_gray, step_template, cv2.TM_CCOEFF_NORMED)
     threshold = 0.8
     loc = np.where(res >= threshold)
-
 
     # Debug
     if config.DEBUG:
@@ -124,7 +122,6 @@ def bank_path(reverse=False):
         while success is False and IS_MOVING is False:
             if isinstance(step, list):
                 for substep in step:
-                    print("Checking substep: %s" % substep.path)
                     success, vals, w, h = analyse_map(substep.path)
                     if success:
                         continue
@@ -142,28 +139,3 @@ def bank_path(reverse=False):
         # Check if stopped
         while IS_MOVING is True:
             update_moving()
-
-
-# Depricated
-def move(step):
-    current_map = grabber.grab_region("current_map", grabber.MAP, True)
-    current_map = cv2.imread(current_map)
-    current_map_gray = cv2.cvtColor(current_map, cv2.COLOR_BGR2GRAY)
-    step_template = cv2.imread(step.path, 0)
-
-    w, h = step_template.shape[::-1]
-
-    res = cv2.matchTemplate(current_map_gray, step_template, cv2.TM_CCOEFF_NORMED)
-    threshold = 0.8
-    loc = np.where(res >= threshold)
-
-    for pt in zip(*loc[::-1]):
-        bot.click(Pos(
-            grabber.MAP["TL"].x + pt[0] + (w / 2),
-            grabber.MAP["TL"].y + pt[1] + (h / 2)
-        ))
-        cv2.rectangle(current_map, pt, (pt[0] + w, pt[1] + h), (25, 0, 255), 2)
-        break
-
-
-    cv2.imwrite('debug/current_map_outcome.png', current_map)

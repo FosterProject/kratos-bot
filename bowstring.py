@@ -143,36 +143,45 @@ if __name__ == "__main__":
 
     # Start fletching loop
     while True:
+        print("start")
         # Check if true north needs to be clicked
         if time.time() - TRUE_NORTH_TIME >= TRUE_NORTH_TIMER_CAP:
             ui.click_compass()
             set_true_north_timers()
 
+        print("getting resource")
         # Withdraw bows and strings
         withdraw_resources()
 
+        print("closing bank")
         # Close bank
         bank.close()
         wait(2, 4)
 
+        print("stringing")
         # Click on a bow and click on a string
         start_stringing()
         wait(2, 4)
 
+        print("confirming stringing")
         # Click fletch all or send a space key
         bot.press_space()
 
         # Wait until 14 objects (strung bows if possible) in inventory
         # while not finished_stringing():
         #     wait(2, 4)
+        print("waiting...")
         wait(STRINGING_TIME, STRINGING_TIME + STRING_TIME_ERROR)
 
         # Open bank and bank inventory
+        print("...banking")
         while not bank.is_bank_open():
             bank.open()
             time.sleep(random.randint(2, 5))
+        print("Banking inventory")
         bank.bank_inventory()
         wait(2, 3)
+        print("...here we go again")
 
         # if current run time exceeds cap
         if time.time() - LOGIN_TIME >= LOGIN_TIMER_CAP:

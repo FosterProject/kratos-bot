@@ -4,7 +4,6 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
-from darkflow.net.build import TFNet
 
 # Custom Library
 import tools.image_lib as imlib

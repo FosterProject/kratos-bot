@@ -1,10 +1,10 @@
-import matplotlib.pyplot as plt
-from darkflow.net.build import TFNet
-import numpy as np
-import cv2
 import time
 import random
 import sys
+import matplotlib.pyplot as plt
+import numpy as np
+import cv2
+from darkflow.net.build import TFNet
 
 # Custom Library
 import tools.image_lib as imlib
@@ -28,7 +28,10 @@ PICKAXE_REFERENCE = "bot_ref_imgs/mining/pickaxe_mithril.png"
 
 # Window Constants (Used for an artificial (0,0) coord when translating click region back to screen)
 TRANSLATION_DIST = ((config.SCREEN_HEIGHT / 2) - (config.SCREEN_HEIGHT / 15))
-TRANSLATION_TOPLEFT = Pos((config.SCREEN_WIDTH / 2) - TRANSLATION_DIST, (config.SCREEN_HEIGHT / 2) - TRANSLATION_DIST)
+TRANSLATION_TOPLEFT = Pos(
+    (config.SCREEN_WIDTH / 2) - TRANSLATION_DIST,
+    (config.SCREEN_HEIGHT / 2) - TRANSLATION_DIST
+    )
 
 # Analysis Threshold
 THRESHOLD = 0.8
@@ -178,7 +181,7 @@ if __name__ == "__main__":
             print("Mining a rock...")
             mine_rock()
             time.sleep(random.randint(6, 10))
-        
+
         # Move to bank
         ui.click_compass()
         movement.bank_path()

@@ -24,7 +24,8 @@ import account
 # Globals
 LOGIN_TIME = 0
 LOGIN_TIMER_CAP = 0
-
+TRUE_NORTH_TIME = 0
+TRUE_NORTH_TIMER_CAP = 0
 
 # OSRS Constants
 LOGIN_TIMER_CAP_MIN = 20 * 60
@@ -32,6 +33,9 @@ LOGIN_TIMER_CAP_MAX = 300 * 60
 
 LOGOUT_TIME_MIN = 5
 LOGOUT_TIME_MAX = 40
+
+TRUE_NORTH_TIMER_MIN = 10
+TRUE_NORTH_TIMER_MAX = 30
 
 BOW_STRUNG_REFERENCE = "bot_ref_imgs/fletching/maple_longbow.png"
 BOW_UNSTRUNG_REFERENCE = "bot_ref_imgs/fletching/maple_longbow_u.png"
@@ -87,6 +91,13 @@ def set_login_timers():
     LOGIN_TIMER_CAP = random.randint(LOGIN_TIMER_CAP_MIN, LOGIN_TIMER_CAP_MAX)
 
 
+def set_true_north_timers():
+    global TRUE_NORTH_TIME
+    global TRUE_NORTH_TIMER_CAP
+    TRUE_NORTH_TIME = time.time()
+    TRUE_NORTH_TIMER_CAP = random.randint(TRUE_NORTH_TIMER_MIN, TRUE_NORTH_TIMER_MAX)
+
+
 if __name__ == "__main__":
 
     # Startup
@@ -97,6 +108,11 @@ if __name__ == "__main__":
 
     # Start fletching loop
     while True:
+        # Check if true north needs to be clicked
+        if time.time() - TRUE_NORTH_TIME >= TRUE_NORTH_TIMER_CAP:
+            ui.click_compass()
+            set_true_north_timers()
+
         # Withdraw bows and strings
         withdraw_resources()
 

@@ -22,6 +22,14 @@
 - Test: `python flow --model .\cfg\yolo-kratos.cfg --imgdir .\RAW_TEST_DATA\ --labels .\classes.txt --load -1 --gpu 1.0`
 
 
+## Training Notes
+
+- I had to run with a batch of 2
+- I had to resize the cfg down to 416x416.
+- Make sure that your training data images are square and a smallish resolution < 500. (I used 480x480)
+- 1000 epochs was good enough for a base copper rock.
+
+
 ## Resources
 
 - [Custom Object Detection using yolo and Darkflow](https://medium.com/coinmonks/detecting-custom-objects-in-images-video-using-yolo-with-darkflow-1ff119fa002f)

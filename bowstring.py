@@ -55,6 +55,9 @@ BOW_STRUNG_REFERENCE = "bot_ref_imgs/fletching/maple_longbow.png"
 BOW_UNSTRUNG_REFERENCE = "bot_ref_imgs/fletching/maple_longbow_u.png"
 STRING_REFERENCE = "bot_ref_imgs/fletching/bowstring.png"
 
+BOW_UNSTRUNG_REFERENCE_BANK = "bot_ref_imgs/fletching/maple_longbow_u_bank.png"
+STRING_REFERENCE_BANK = "bot_ref_imgs/fletching/bowstring_bank.png"
+
 
 # Positions
 # STRING_ALL = Box(Pos(), Pos())
@@ -96,9 +99,9 @@ def finished_stringing():
 
 
 def withdraw_resources():
-    bank.withdraw_item(BOW_UNSTRUNG_REFERENCE)
+    bank.withdraw_item(BOW_UNSTRUNG_REFERENCE_BANK)
     wait(1, 3)
-    bank.withdraw_item(STRING_REFERENCE)
+    bank.withdraw_item(STRING_REFERENCE_BANK)
     wait(1, 3)
 
 

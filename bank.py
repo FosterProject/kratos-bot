@@ -79,7 +79,7 @@ def withdraw_item(item_ref):
     print("Withdrawing: %s" % item_ref)
     click_pos = find_item(item_ref)
     if click_pos is None:
-        print("Couldn't find item [%s]. Item is not in bank view.")
+        print("Couldn't find item [%s]. Item is not in bank view." % item_ref)
         return
     bot.click(click_pos)
 

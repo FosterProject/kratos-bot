@@ -7,6 +7,7 @@ import tools.osrs_screen_grab as grabber
 from tools.screen_pos import Pos
 import bot
 from tools import config
+from tools import screen_search
 
 
 def has_amount(reference_image, limit):
@@ -33,6 +34,12 @@ def has_amount(reference_image, limit):
         cv2.imwrite('debug/inventory_has_amount_outcome.png', _)
         
     return len(drawn) >= limit
+
+
+def find(reference_img):
+    pos = screen_search.find_in_region(grabber.INV, reference_img)
+    return pos
+
 
 
 def drop(reference_image):

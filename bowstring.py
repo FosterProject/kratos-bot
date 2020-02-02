@@ -8,7 +8,7 @@ import cv2
 # Custom Library
 import tools.image_lib as imlib
 import tools.osrs_screen_grab as grabber
-from tools.screen_pos import Pos
+from tools.screen_pos import Pos, Box
 from tools import config
 import bot
 
@@ -26,7 +26,8 @@ LOGIN_TIMER_CAP = 0
 TRUE_NORTH_TIME = 0
 TRUE_NORTH_TIMER_CAP = 0
 
-# OSRS Constants
+
+# Timers
 LOGIN_TIMER_CAP_MIN = 20 * 60
 LOGIN_TIMER_CAP_MAX = 300 * 60
 
@@ -36,9 +37,18 @@ LOGOUT_TIME_MAX = 40
 TRUE_NORTH_TIMER_MIN = 10
 TRUE_NORTH_TIMER_MAX = 30
 
+STRINGING_TIME = 20
+STRING_TIME_ERROR = 5
+
+
+# Images
 BOW_STRUNG_REFERENCE = "bot_ref_imgs/fletching/maple_longbow.png"
 BOW_UNSTRUNG_REFERENCE = "bot_ref_imgs/fletching/maple_longbow_u.png"
 STRING_REFERENCE = "bot_ref_imgs/fletching/bowstring.png"
+
+
+# Positions
+STRING_ALL = Box(Pos(), Pos())
 
 
 def wait(min, max):
@@ -97,8 +107,22 @@ def set_true_north_timers():
     TRUE_NORTH_TIMER_CAP = random.randint(TRUE_NORTH_TIMER_MIN, TRUE_NORTH_TIMER_MAX)
 
 
-if __name__ == "__main__":
+def start_stringing():
+    bow = inventory.find(BOW_UNSTRUNG_REFERENCE)
+    if bow is None:
+        print("Couldn't find bow, bot is FUCKED.")
+        sys.exit()
+    string = inventory.find(STRING_REFERENCE)
+    if string is None:
+        print("Couldn't find bowstring, bot is FECKED.")
+        sys.exit()
+    
+    bot.click(bow)
+    wait(1, 2)
+    bot.click(string)
 
+
+if __name__ == "__main__":
     # Startup
     startup()
 
@@ -117,15 +141,19 @@ if __name__ == "__main__":
 
         # Close bank
         bank.close()
+        wait(2, 4)
 
         # Click on a bow and click on a string
+        start_stringing()
+        wait(2, 4)
 
         # Click fletch all or send a space key
         bot.press_space()
 
         # Wait until 14 objects (strung bows if possible) in inventory
-        while not finished_stringing():
-            wait(2, 4)
+        # while not finished_stringing():
+        #     wait(2, 4)
+        wait(STRINGING_TIME, STRING_TIME_ERROR)
 
         # Open bank
         bank.open()

@@ -1,3 +1,12 @@
+# TODO
+#
+# - Random positions
+#   > Bank position
+#   > Bank withdrawals
+#   > Bank invent
+#   > Bank close
+#   > Select x
+
 import time
 import random
 import sys

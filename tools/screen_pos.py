@@ -39,6 +39,15 @@ class Box:
     def __init__(self, tl, br):
         self.tl = tl
         self.br = br
+        self.width = br.x - tl.x
+        self.height = br.y - tl.y
+
+
+    def center(self):
+        return Pos(
+            self.tl.x + (self.width / 2),
+            self.tl.y + (self.height / 2)
+        )
 
 
     def random_point(self):

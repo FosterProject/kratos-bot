@@ -155,11 +155,12 @@ if __name__ == "__main__":
         #     wait(2, 4)
         wait(STRINGING_TIME, STRINGING_TIME + STRING_TIME_ERROR)
 
-        # Open bank
-        bank.open()
-
-        # Empty inventory
+        # Open bank and bank inventory
+        while not bank.is_bank_open():
+            bank.open()
+            time.sleep(random.randint(2, 5))
         bank.bank_inventory()
+        wait(2, 3)
 
         # if current run time exceeds cap
         if time.time() - LOGIN_TIME >= LOGIN_TIMER_CAP:

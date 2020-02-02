@@ -48,7 +48,7 @@ STRING_REFERENCE = "bot_ref_imgs/fletching/bowstring.png"
 
 
 # Positions
-STRING_ALL = Box(Pos(), Pos())
+# STRING_ALL = Box(Pos(), Pos())
 
 
 def wait(min, max):

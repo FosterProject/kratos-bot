@@ -9,7 +9,7 @@ import bot
 from tools import config
 
 
-def is_full(reference_image, limit):
+def has_amount(reference_image, limit):
     screen = grabber.grab_region("", grabber.INV)
     _ = np.array(screen)
     screen = np.array(screen.convert("L"))
@@ -30,7 +30,7 @@ def is_full(reference_image, limit):
         if config.DEBUG:
             cv2.rectangle(_, pt, (pt[0] + w, pt[1] + h), (25, 0, 255), 2)
     if config.DEBUG:
-        cv2.imwrite('debug/inventory_full_outcome.png', _)
+        cv2.imwrite('debug/inventory_has_amount_outcome.png', _)
         
     return len(drawn) >= limit
 

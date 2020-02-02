@@ -17,6 +17,20 @@ def click(pos):
     bot.click()
 
 
+def type_string(string, send=False):
+    bot.write(string)
+    if send:
+        press_enter()
+
+
+def press_enter():
+    bot.press("enter")
+
+
+def press_space():
+    bot.press("space")
+
+
 def drag(start, end, time):
     bot.moveTo(start.x, start.y)
     bot.dragTo(end.x, end.y, time, bot.easeInQuad)

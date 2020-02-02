@@ -32,6 +32,20 @@
 - 1000 epochs was good enough for a base copper rock.
 
 
+## Grabbing an Image
+
+With your Anaconda prompt open, being in the kratos-bot directory and having Kratos environment active. (See above to get that done)
+
+0. python (you should see >>>)
+1. import pyautogui as bot
+2. From PIL import ImageGrab
+3. bot.position()
+  > Move your cursor to the TOP LEFT and BOTTOM RIGHT and keep note of those coords
+4. img = ImageGrab.grab(bbox=(TOP LEFT X, TOP LEFT Y, BOTTOM RIGHT X, BOTTOM RIGHT Y)).convert("RGB")
+5. img.save("IMAGE_NAME.png")
+6. You'll find the image in the kratos-bot directory
+
+
 ## Resources
 
 - [Custom Object Detection using yolo and Darkflow](https://medium.com/coinmonks/detecting-custom-objects-in-images-video-using-yolo-with-darkflow-1ff119fa002f)

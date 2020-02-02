@@ -14,7 +14,7 @@ from tools import screen_search
 # Constants
 LOGIN_BUTTON = Box(Pos(739, 509), Pos(1169, 619))
 LOBBY_BUTTON = Box(Pos(721, 625), Pos(1187, 795))
-
+LOGOUT_BUTTON = Box(Pos(1452, 911, 1731, 952))
 
 def is_logged_out():
     check = screen_search.find_in_screen("bot_ref_imgs/account/logout_check.png")
@@ -51,3 +51,18 @@ def login():
     
     # Enter through lobby
     bot.click(LOBBY_BUTTON.random_point())
+
+
+def logout():
+    if is_logged_out():
+        print("Already logged out you plum")
+        return
+    
+    click_pos = screen_search.find_in_screen("bot_ref_imgs/account/logout_inactive.png")
+    if click_pos is not None:
+        bot.click(click_pos)
+
+    time.sleep(random.randint(1, 2))
+
+    # Click logout button
+    bot.click(LOGOUT_BUTTON.random_point())

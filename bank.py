@@ -7,7 +7,7 @@ import sys
 
 # Custom library
 import tools.osrs_screen_grab as grabber
-from tools.screen_pos import Pos
+from tools.screen_pos import Pos, Box
 import bot
 from tools import config
 from tools import screen_search
@@ -17,6 +17,9 @@ BANK_BOOTH = [
     "bot_ref_imgs/banking/bank_booth.png",
     "bot_ref_imgs/banking/bank_booth_2.png"
 ]
+
+
+BANK_WITHDRAW_X = Box(Pos(887, 989), Pos(932, 1028))
 
 
 def bank_cycle(withdraw=[]):
@@ -41,6 +44,22 @@ def bank_cycle(withdraw=[]):
 
     # Close
     close()
+
+
+def is_select_x_inactive():
+    check = screen_search.find_in_screen("bot_ref_imgs/banking/withdraw_x_inactive.png")
+    return check is not None
+
+
+def options_select_x():
+    if is_select_x_inactive():
+        bot.click(BANK_WITHDRAW_X.random_point())
+        time.sleep(random.randint(1, 2))
+        # Check if amount menu pops up
+        check = screen_search.find_in_screen("bot_ref_imgs/banking/withdraw_x_amount.png")
+        if check is not None:
+            bot.type_string("14", True)
+
 
 
 def bank_inventory():
@@ -79,7 +98,7 @@ def find_booth():
            
     if not booth_found:
         print("Couldn't find bank booth... fuck.")
-        sys.exit()
+        return None
     
     return check
   
@@ -94,4 +113,6 @@ def close():
 
 def open():
     booth = find_booth()
+    if booth is None:
+        sys.exit()
     bot.click(booth)

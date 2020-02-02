@@ -1,0 +1,134 @@
+import time
+import random
+import sys
+import matplotlib.pyplot as plt
+import numpy as np
+import cv2
+from darkflow.net.build import TFNet
+
+# Custom Library
+import tools.image_lib as imlib
+import tools.osrs_screen_grab as grabber
+from tools.screen_pos import Pos
+from tools import config
+import bot
+
+# OSRS Specific
+import inventory
+import movement
+import bank
+import ui
+import account
+
+
+# Globals
+LOGIN_TIME = 0
+LOGIN_TIMER_CAP = 0
+
+
+# OSRS Constants
+LOGIN_TIMER_CAP_MIN = 20 * 60
+LOGIN_TIMER_CAP_MAX = 300 * 60
+
+LOGOUT_TIME_MIN = 5
+LOGOUT_TIME_MAX = 40
+
+BOW_STRUNG_REFERENCE = "bot_ref_imgs/fletching/maple_longbow.png"
+BOW_UNSTRUNG_REFERENCE = "bot_ref_imgs/fletching/maple_longbow_u.png"
+STRING_REFERENCE = "bot_ref_imgs/fletching/bowstring.png"
+
+
+def wait(min, max):
+    time.sleep(random.randint(min, max))
+
+
+def startup():
+    # Log in
+    account.login()
+    time.sleep(random.randint(3, 6))
+
+    # True North
+    ui.click_compass()
+
+    # Check if at the bank
+    at_bank_check = bank.find_booth()
+    if at_bank_check is None:
+        print("Please start the bot at Varrock East bank")
+        sys.exit()
+
+    # Open inventory
+    ui.open_inventory()
+
+    # Open bank and empty inventory
+    while not bank.is_bank_open():
+        open()
+        time.sleep(random.randint(2, 5))
+    bank.bank_inventory()
+
+    # Toggle select x
+    bank.options_select_x()
+
+
+def finished_stringing():
+    return inventory.has_amount(BOW_STRUNG_REFERENCE, 14)
+
+
+def withdraw_resources():
+    bank.withdraw_item(BOW_UNSTRUNG_REFERENCE)
+    wait(1, 3)
+    bank.withdraw_item(STRING_REFERENCE)
+    wait(1, 3)
+
+
+def set_login_timers():
+    global LOGIN_TIME
+    global LOGIN_TIMER_CAP
+    LOGIN_TIME = time.time()
+    LOGIN_TIMER_CAP = random.randint(LOGIN_TIMER_CAP_MIN, LOGIN_TIMER_CAP_MAX)
+
+
+if __name__ == "__main__":
+
+    # Startup
+    startup()
+
+    # Set login timer
+    set_login_timers()
+
+    # Start fletching loop
+    while True:
+        # Withdraw bows and strings
+        withdraw_resources()
+
+        # Close bank
+        bank.close()
+
+        # Click on a bow and click on a string
+
+        # Click fletch all or send a space key
+        bot.press_space()
+
+        # Wait until 14 objects (strung bows if possible) in inventory
+        while not finished_stringing():
+            wait(2, 4)
+
+        # Open bank
+        bank.open()
+
+        # Empty inventory
+        bank.bank_inventory()
+
+        # if current run time exceeds cap
+        if time.time() - LOGIN_TIME >= LOGIN_TIMER_CAP:
+            # Reset timer values
+            set_login_timers()
+
+            # Logout
+            account.logout()
+
+            # Sleep for random value
+            wait(LOGOUT_TIME_MIN, LOGOUT_TIME_MIN)
+
+            # Call startup routine
+            startup()
+            

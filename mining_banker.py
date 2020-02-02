@@ -176,7 +176,7 @@ if __name__ == "__main__":
     # Start mining loop
     while True:
         # Mine until full
-        while not inventory.is_full(COPPER_REFERENCE, 24):
+        while not inventory.has_amount(COPPER_REFERENCE, 24):
             # Mine
             print("Mining a rock...")
             mine_rock()

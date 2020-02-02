@@ -153,7 +153,7 @@ if __name__ == "__main__":
         # Wait until 14 objects (strung bows if possible) in inventory
         # while not finished_stringing():
         #     wait(2, 4)
-        wait(STRINGING_TIME, STRING_TIME_ERROR)
+        wait(STRINGING_TIME, STRINGING_TIME + STRING_TIME_ERROR)
 
         # Open bank
         bank.open()

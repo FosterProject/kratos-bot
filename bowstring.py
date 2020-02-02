@@ -118,7 +118,7 @@ def start_stringing():
         sys.exit()
     
     bot.click(bow)
-    wait(1, 2)
+    wait(2, 3)
     bot.click(string)
 
 

@@ -26,7 +26,7 @@ def find_in_region(region, item_ref):
     for pt in zip(*loc[::-1]):
         if config.DEBUG:
             cv2.rectangle(_, pt, (pt[0] + w, pt[1] + h), (25, 0, 255), 2)
-            cv2.imwrite('debug/screen_region_search_outcome.png', _)
+            cv2.imwrite('debug/region_%s.png' % item_ref.split("/")[-1].split(".")[0], _)
         
         return Pos(
             pt[0] + (w / 2),
@@ -51,7 +51,7 @@ def find_in_screen(item_ref):
     for pt in zip(*loc[::-1]):
         if config.DEBUG:
             cv2.rectangle(_, pt, (pt[0] + w, pt[1] + h), (25, 0, 255), 2)
-            cv2.imwrite('debug/screen_search_outcome.png', _)
+            cv2.imwrite('debug/screen_%s.png' % item_ref.split("/")[-1].split(".")[0], _)
         
         return Pos(
             pt[0] + (w / 2),

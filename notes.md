@@ -1,4 +1,4 @@
-# Darkflow Test
+# OSRS Bot - Darkflow Edition
 
 ## Installation
 

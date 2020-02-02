@@ -66,20 +66,15 @@ def initialise_tracker():
 
     # Initialise Multi-Tracker
     print("> Setup initialising...")
-    tracker = cv2.MultiTracker_create()
-    tracker_colours = []
-    for bbox in bboxes:
-        tracker.add(cv2.TrackerKCF_create(), frame, bbox)
-        tracker_colours.append((
-            random.randint(1, 255),
-            random.randint(1, 255),
-            random.randint(1, 255)
-        ))
-    return tracker, tracker_colours
+    # tracker = cv2.TrackerBoosting_create()
+    tracker = cv2.TrackerKCF_create()
+    tracker.init(frame, bboxes[0])
+
+    return tracker, (random.randint(1, 255), random.randint(1, 255), random.randint(1, 255))
 
 
 print("Starting up a tracker...")
-tracker, tracker_colours = initialise_tracker()
+tracker, tracker_colour = initialise_tracker()
 print("... done.")
 
 
@@ -96,19 +91,18 @@ while True:
 
     # Update tracker
     print("> Updating tracker...")
-    success, boxes = tracker.update(frame)
-    print("Tracker success: %s || Box Count: %s" % (success, len(boxes)))
+    success, bbox = tracker.update(frame)
+    print("Tracker success: %s" % success)
 
     # Draw bounding boxes
     if success:
-        for i, box in enumerate(boxes):
-            p1 = (int(box[0]), int(box[1]))
-            p2 = (int(box[0] + box[2]), int(box[1] + box[3]))
-            cv2.rectangle(frame, p1, p2, tracker_colours[i], 2, 1)
+        p1 = (int(bbox[0]), int(bbox[1]))
+        p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+        cv2.rectangle(frame, p1, p2, tracker_colour, 2, 1)
 
     # Show stream
     cv2.imshow('test', frame)
-    if cv2.waitKey(5) & 0xFF == ord('q'):
+    if cv2.waitKey(2) & 0xFF == ord('q'):
         break
 
 # Stream cleanup

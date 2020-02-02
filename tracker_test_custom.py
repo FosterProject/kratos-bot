@@ -50,7 +50,7 @@ def translate_predictions_to_bbox(rocks):
     return bbox_result
 
 
-def initialise_tracker():
+def initialise_trackers():
     # Read in first frame
     img_path = grabber.grab_fullscreen(file_name="stream", save=True)
     imlib.rescale(img_path).save("stream.png")
@@ -66,21 +66,21 @@ def initialise_tracker():
 
     # Initialise Multi-Tracker
     print("> Setup initialising...")
-    tracker = cv2.MultiTracker_create()
+    trackers = []
     tracker_colours = []
     for bbox in bboxes:
-        tracker.add(cv2.TrackerKCF_create(), frame, bbox)
-        tracker_colours.append((
-            random.randint(1, 255),
-            random.randint(1, 255),
-            random.randint(1, 255)
-        ))
-    return tracker, tracker_colours
+        tracker = cv2.TrackerKCF_create()
+        tracker.init(frame, bbox)
+        trackers.append(tracker)
+        tracker_colours.append((random.randint(1, 255), random.randint(1, 255), random.randint(1, 255)))
+        
+    return trackers, tracker_colours
 
 
 print("Starting up a tracker...")
-tracker, tracker_colours = initialise_tracker()
+trackers, tracker_colours = initialise_trackers()
 print("... done.")
+print("Tracker Count: %s" % len(trackers))
 
 
 print("Starting stream...")
@@ -95,20 +95,18 @@ while True:
     frame = np.array(imlib.rescale_obj(grabber.grab_fullscreen()))
 
     # Update tracker
-    print("> Updating tracker...")
-    success, boxes = tracker.update(frame)
-    print("Tracker success: %s || Box Count: %s" % (success, len(boxes)))
-
-    # Draw bounding boxes
-    if success:
-        for i, box in enumerate(boxes):
-            p1 = (int(box[0]), int(box[1]))
-            p2 = (int(box[0] + box[2]), int(box[1] + box[3]))
+    # print("> Updating trackers...")
+    for i, tracker in enumerate(trackers):
+        success, bbox = tracker.update(frame)
+        # Draw bounding boxes
+        if success:
+            p1 = (int(bbox[0]), int(bbox[1]))
+            p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
             cv2.rectangle(frame, p1, p2, tracker_colours[i], 2, 1)
 
     # Show stream
     cv2.imshow('test', frame)
-    if cv2.waitKey(5) & 0xFF == ord('q'):
+    if cv2.waitKey(2) & 0xFF == ord('q'):
         break
 
 # Stream cleanup

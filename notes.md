@@ -5,6 +5,8 @@
 1. Create the virtual env: `conda create -n Kratos python=3.7.6 anaconda`
 2. Install tensorflow: `conda install -c anaconda tensorflow-gpu=1.15.0`
 3. Install opencv: `pip install opencv-python`
+    - `pip install Pillow`
+    - `pip install pyautogui`
 4. Cloned darknet into root folder: `git clone https://github.com/thtrieu/darkflow.git`
 5. Set up darkflow: `cd darkflow` -> `python setup.py build_ext --inplace`
 

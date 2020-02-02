@@ -74,7 +74,7 @@ def startup():
 
     # Open bank and empty inventory
     while not bank.is_bank_open():
-        open()
+        bank.open()
         time.sleep(random.randint(2, 5))
     bank.bank_inventory()
 

@@ -2,6 +2,7 @@ __pycache__
 bin
 ckpt
 flow
+debug
 
 RAW_DATA
 RAW_TEST_DATA

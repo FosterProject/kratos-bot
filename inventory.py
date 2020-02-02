@@ -38,8 +38,9 @@ def has_amount(reference_image, limit):
 
 def find(reference_img):
     pos = screen_search.find_in_region(grabber.INV, reference_img)
+    if pos is not None:
+        pos.add(grabber.INV["TL"].x, grabber.INV["TL"].y)
     return pos
-
 
 
 def drop(reference_image):

@@ -18,6 +18,12 @@ class Pos:
         return self
 
 
+    def add(self, x1, y1):
+        self.x += x1
+        self.y += y1
+        return self
+
+
     def __str__(self):
         return "Point(x: %s, y: %s)" % (self.x, self.y)
 

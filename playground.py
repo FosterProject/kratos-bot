@@ -9,6 +9,5 @@ import account
 import ui
 
 s = Session(0, 0)
+s2 = Session(0, 1)
 mining_bot = mining.Mining(s)
-
-ui.spin_around(s)

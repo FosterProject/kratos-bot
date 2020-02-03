@@ -10,6 +10,13 @@ from tools import config
 from tools import screen_search
 
 
+# Constants
+ITEM_WIDTH = 32
+ITEM_HEIGHT = 32
+INVENTORY_BUFFER_HEIGHT = 2
+INVENTORY_BUFFER_WIDTH = 8
+
+
 def has_amount(reference_image, limit):
     screen = grabber.grab_region("", grabber.INV)
     _ = np.array(screen)

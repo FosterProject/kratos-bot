@@ -6,22 +6,19 @@ import time
 # Custom library
 from tools.screen_pos import Pos, Box
 from tools.lib import debug
+from tools.lib import wait
 from tools import screen_search
+from tools import osrs_screen_grab as grabber
 import bot
 
 # Utilities
 import ui
 
-
-# Constants
-LOGIN_BUTTON = Box(Pos(325, 223), Pos(516, 274))
-LOBBY_BUTTON = Box(Pos(721, 625), Pos(1187, 795))
-LOGOUT_BUTTON = Box(Pos(1452, 911), Pos(1731, 952))
-
 # Images
 LOGOUT_CHECK = "bot_ref_imgs/quad_1080/account/logout_check.png"
-TAP_TO_PLAY = "bot_ref_imgs/account/tap_to_play.png"
-CONNECTING_CHECK = "bot_ref_imgs/account/connecting_check.png"
+TAP_TO_PLAY = "bot_ref_imgs/quad_1080/account/tap_to_play.png"
+CONNECTING_CHECK = "bot_ref_imgs/quad_1080/account/connecting_check.png"
+LOGOUT_INACTIVE = "bot_ref_imgs/quad_1080/account/logout_inactive.png"
 
 
 def is_logged_out(session):
@@ -47,30 +44,31 @@ def login(session):
     debug("Logging in...")
 
     # Click login
-    bot.click(LOGIN_BUTTON.random_point())
+    bot.click(session.translate(grabber.LOGIN_BUTTON.random_point()))
 
     # Enter game
     while not is_in_lobby(session):
-        time.sleep(2)
+        wait(1.5, 2)
         # If connection failed
         if not is_connecting(session):
             # Log in again
-            bot.click(LOGIN_BUTTON.random_point())
+            bot.click(session.translate(grabber.LOGIN_BUTTON.random_point()))
     
     # Enter through lobby
-    bot.click(LOBBY_BUTTON.random_point())
+    bot.click(session.translate(grabber.LOBBY_BUTTON.random_point()))
 
 
 def logout(session):
-    if is_logged_out():
-        print("Already logged out you plum")
+    if is_logged_out(session):
+        debug("Account: Already logged out you plum")
         return
     
-    click_pos = screen_search.find_in_screen("bot_ref_imgs/account/logout_inactive.png")
+    click_pos = session.find_in_client(LOGOUT_INACTIVE)
     if click_pos is not None:
-        bot.click(click_pos)
+        debug("Account: Opening logout tab")
+        ui.open_tab(session, "RIGHT", 6)
 
-    time.sleep(random.randint(1, 2))
+    wait(1, 2)
 
     # Click logout button
-    bot.click(LOGOUT_BUTTON.random_point())
+    bot.click(session.translate(grabber.LOGOUT_BUTTON.random_point()))

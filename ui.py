@@ -11,25 +11,12 @@ from tools.lib import debug
 from tools.lib import wait
 
 
-# BOUNDS
-COMPASS = {
-    "TL": Pos(1517, 18),
-    "BR": Pos(1576, 73)
-}
-
-INVENTORY = {
-    "TL": Pos(1816, 442),
-    "BR": Pos(1880, 506)
-}
-
-DRAG_BOUNDS = {
-    "TL": Pos(382, 248),
-    "BR": Pos(1618, 906)
-}
-
 # DURATIONS
 DRAG_DURATION_MIN = 0.4
 DRAG_DURATION_MAX = 1.3
+
+# Constants
+BAR_TAB_HEIGHT = 38
 
 # Images
 INVENTORY_ICON_ACTIVE = "bot_ref_imgs/quad_1080/ui/inv_icon_active.png"
@@ -42,7 +29,7 @@ def open_tab(session, side, item):
     bar = grabber.BAR_LEFT_TOP if side == "LEFT" else grabber.BAR_RIGHT_TOP
 
     tab_bounds = bar.copy()
-    tab_bounds.shift_y(item * tab_bounds.height)
+    tab_bounds.shift_y(item * BAR_TAB_HEIGHT)
     
     bot.click(session.translate(tab_bounds.random_point()))
 

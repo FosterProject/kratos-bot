@@ -73,8 +73,8 @@ def spin_around(session):
     )
 
     # Reverse direction half the time
-    start = Pos(x_start, y_start)
-    end = Pos(x_end, y_end)
+    start = session.translate(Pos(x_start, y_start))
+    end = session.translate(Pos(x_end, y_end))
     # if random.randint(1, 2) == 2:
     #     x = start
     #     start = end

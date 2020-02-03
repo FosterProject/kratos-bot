@@ -5,46 +5,55 @@ import time
 
 # Custom library
 from tools.screen_pos import Pos, Box
-import bot
-from tools import config
+from tools.lib import debug
 from tools import screen_search
+import bot
+
+# Utilities
+import ui
 
 
 # Constants
-LOGIN_BUTTON = Box(Pos(739, 509), Pos(1169, 619))
+LOGIN_BUTTON = Box(Pos(325, 223), Pos(516, 274))
 LOBBY_BUTTON = Box(Pos(721, 625), Pos(1187, 795))
 LOGOUT_BUTTON = Box(Pos(1452, 911), Pos(1731, 952))
 
-def is_logged_out():
-    check = screen_search.find_in_screen("bot_ref_imgs/account/logout_check.png")
+# Images
+LOGOUT_CHECK = "bot_ref_imgs/quad_1080/account/logout_check.png"
+TAP_TO_PLAY = "bot_ref_imgs/account/tap_to_play.png"
+CONNECTING_CHECK = "bot_ref_imgs/account/connecting_check.png"
+
+
+def is_logged_out(session):
+    check = session.find_in_client(LOGOUT_CHECK)
     return check is not None
 
 
-def is_in_lobby():
-    check = screen_search.find_in_screen("bot_ref_imgs/account/tap_to_play.png")
+def is_in_lobby(session):
+    check = session.find_in_client(TAP_TO_PLAY)
     return check is not None
 
 
-def is_connecting():
-    check = screen_search.find_in_screen("bot_ref_imgs/account/connecting_check.png")
+def is_connecting(session):
+    check = session.find_in_client(CONNECTING_CHECK)
     return check is None
 
 
-def login():
-    if not is_logged_out():
-        print("Already logged in you plum")
+def login(session):
+    if not is_logged_out(session):
+        debug("Account: Already logged in")
         return
 
-    print("Logging in...")
+    debug("Logging in...")
 
     # Click login
     bot.click(LOGIN_BUTTON.random_point())
 
     # Enter game
-    while not is_in_lobby():
+    while not is_in_lobby(session):
         time.sleep(2)
         # If connection failed
-        if not is_connecting():
+        if not is_connecting(session):
             # Log in again
             bot.click(LOGIN_BUTTON.random_point())
     
@@ -52,7 +61,7 @@ def login():
     bot.click(LOBBY_BUTTON.random_point())
 
 
-def logout():
+def logout(session):
     if is_logged_out():
         print("Already logged out you plum")
         return

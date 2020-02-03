@@ -1,4 +1,5 @@
 import random
+import copy
 
 class Pos:
     def __init__(self, x, y):
@@ -36,6 +37,10 @@ class Pos:
         return self
 
 
+    def copy(self):
+        return copy.deepcopy(self)
+
+
     def __str__(self):
         return "Point(x: %s, y: %s)" % (self.x, self.y)
 
@@ -56,9 +61,8 @@ class Box:
 
 
     def subdivision(self, b1):
-        tmp = self.tl
+        self.br = copy.deepcopy(self.tl).add(b1.br)
         self.tl.add(b1.tl)
-        self.br = tmp.add(b1.br)
         return self
 
     def center(self):
@@ -66,6 +70,16 @@ class Box:
             self.tl.x + (self.width / 2),
             self.tl.y + (self.height / 2)
         )
+
+
+    def shift_y(self, amount):
+        self.tl.y += amount
+        self.br.y += amount
+        return self
+
+
+    def copy(self):
+        return copy.deepcopy(self)
 
 
     def random_point(self):

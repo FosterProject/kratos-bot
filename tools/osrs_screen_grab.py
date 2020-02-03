@@ -19,7 +19,7 @@ INVENTORY_ITEM_FIRST_POS = Pos(639, 203)
 
 def grab(bounding_box, region=None, file_name="default_grab", save=False):
     if region is not None:
-        bounding_box.subdivision(region)
+        bounding_box = bounding_box.subdivision(region)
     img = ImageGrab.grab(bbox=(bounding_box.tl.x, bounding_box.tl.y, bounding_box.br.x, bounding_box.br.y)).convert('RGB')
     if save:
         file_path = '%s.png' % file_name

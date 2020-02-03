@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 
-
 # Custom Library
 import tools.osrs_screen_grab as grabber
 from tools.screen_pos import Pos, Box
@@ -25,6 +24,10 @@ class Session:
                 tl.y + config.GAME_HEIGHT
             )
         )
+
+        # Thresholds
+        self.region_threshold = 0.3
+        self.client_threshold = 0.8
     
 
     def find_in_region(self, region, item_ref):
@@ -35,12 +38,14 @@ class Session:
         w, h = template.shape[::-1]
 
         res = cv2.matchTemplate(screen, template, cv2.TM_CCOEFF_NORMED)
-        threshold = 0.8
+        threshold = self.region_threshold
         loc = np.where(res >= threshold)
         if len(list(zip(*loc[::-1]))) < 1:
+            cv2.rectangle(_, (region.tl.x, region.tl.y), (region.br.x, region.br.y), (25, 0, 255), 2)
+            cv2.imwrite('debug/client%s%s/fail_region_%s.png' % (self.row, self.col, item_ref.split("/")[-1].split(".")[0]), _)
             debug("REGION_SEARCH_ERROR - [%s]: %s" % (region, item_ref))
             return None
-        
+
         for pt in zip(*loc[::-1]):
             if config.DEBUG:
                 cv2.rectangle(_, pt, (pt[0] + w, pt[1] + h), (25, 0, 255), 2)
@@ -60,7 +65,7 @@ class Session:
         w, h = template.shape[::-1]
 
         res = cv2.matchTemplate(screen, template, cv2.TM_CCOEFF_NORMED)
-        threshold = 0.8
+        threshold = self.region_threshold
         loc = np.where(res >= threshold)
         if len(list(zip(*loc[::-1]))) < 1:
             debug("CLIENT_SEARCH_ERROR: %s" % item_ref)

@@ -9,15 +9,13 @@ from bots import mining
 
 from utilities import account
 from utilities import ui
+from utilities import inventory
 
 s = Session(0, 0)
 s2 = Session(0, 1)
 
+bot = mining.Mining(s)
+# ui.open_inventory(s)
 
-s.find_in_region(Box(
-    grabber.INVENTORY_ITEM_FIRST_POS,
-    Pos(
-        grabber.INVENTORY_ITEM_FIRST_POS.x + 32,
-        grabber.INVENTORY_ITEM_FIRST_POS.y + 32
-    )
-), "bot_ref_imgs/quad_1080/empty_test.png")
+x = inventory.check_inventory(s, "bot_ref_imgs/quad_1080/fletching/bowstring.png")
+print(x)

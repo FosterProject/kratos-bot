@@ -61,9 +61,10 @@ class Box:
 
 
     def subdivision(self, b1):
-        self.br = copy.deepcopy(self.tl).add(b1.br)
-        self.tl.add(b1.tl)
-        return self
+        new = copy.deepcopy(self)
+        new.br = Pos(new.tl.x + b1.br.x, new.tl.y + b1.br.y)
+        new.tl.add(b1.tl)
+        return new
 
     def center(self):
         return Pos(

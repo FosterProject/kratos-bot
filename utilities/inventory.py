@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 
 # Custom library
 import tools.osrs_screen_grab as grabber
-from tools.screen_pos import Pos
+from tools.screen_pos import Pos, Box
 from tools import bot
 from tools import config
 from tools import screen_search
@@ -16,9 +16,49 @@ ITEM_HEIGHT = 32
 INVENTORY_BUFFER_HEIGHT = 2
 INVENTORY_BUFFER_WIDTH = 8
 
+def build_inventory_positions():
+    positions = []
+    for y in range(0, 7):
+        for x in range(0, 4):
+            tl = Pos(
+                grabber.INVENTORY_ITEM_FIRST_POS.x + (x * ITEM_WIDTH) + (x * INVENTORY_BUFFER_WIDTH),
+                grabber.INVENTORY_ITEM_FIRST_POS.y + (y * ITEM_HEIGHT) + (y * INVENTORY_BUFFER_HEIGHT)
+            )
+            positions.append(Box(tl, Pos(tl.x + ITEM_WIDTH, tl.y + ITEM_HEIGHT)))
+    return positions
+INVENTORY_POSITIONS = build_inventory_positions()
 
-def has_amount(reference_image, limit):
-    screen = grabber.grab_region("", grabber.INV)
+# Utilities
+from utilities import ui
+
+
+def check_inventory(session, item_ref, return_positions=False):
+    # Open the inventory
+    ui.open_inventory(session)
+
+    found = []
+    for x in range(0, 4):
+        for y in range(0, 7):
+            tl = Pos(
+                grabber.INVENTORY_ITEM_FIRST_POS.x + (x * ITEM_WIDTH) + (x * INVENTORY_BUFFER_WIDTH),
+                grabber.INVENTORY_ITEM_FIRST_POS.y + (y * ITEM_HEIGHT) + (y * INVENTORY_BUFFER_HEIGHT)
+            )
+            find = session.find_in_region(Box(
+                tl,
+                Pos(tl.x + ITEM_WIDTH, tl.y + ITEM_HEIGHT)
+            ), item_ref)
+
+            if find is not None:
+                found.append(session.translate(find))
+
+    if return_positions:
+        return len(found), found 
+    else:
+        return len(found), None
+
+
+def has_amount(session, reference_image, limit):
+    screen = grabber.grab(session)
     _ = np.array(screen)
     screen = np.array(screen.convert("L"))
     template = cv2.imread(reference_image, 0)

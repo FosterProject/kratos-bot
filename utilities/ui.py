@@ -43,7 +43,7 @@ def open_inventory(session):
     debug("UI: Opening inventory")
     while not is_inventory_open(session):
         open_tab(session, "RIGHT", 0)
-        wait(.5, 2)
+        wait(0.5, 2)
 
 
 def click_compass(session):

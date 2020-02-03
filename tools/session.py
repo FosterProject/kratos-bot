@@ -6,6 +6,7 @@ import numpy as np
 import tools.osrs_screen_grab as grabber
 from tools.screen_pos import Pos, Box
 from tools import config
+from tools.lib import debug
 
 
 class Session:
@@ -37,13 +38,13 @@ class Session:
         threshold = 0.8
         loc = np.where(res >= threshold)
         if len(list(zip(*loc[::-1]))) < 1:
-            if config.DEBUG: print("REGION_SEARCH_ERROR - [%s]: %s" % (region, item_ref))
+            debug("REGION_SEARCH_ERROR - [%s]: %s" % (region, item_ref))
             return None
         
         for pt in zip(*loc[::-1]):
             if config.DEBUG:
                 cv2.rectangle(_, pt, (pt[0] + w, pt[1] + h), (25, 0, 255), 2)
-                cv2.imwrite('debug/region_%s.png' % item_ref.split("/")[-1].split(".")[0], _)
+                cv2.imwrite('debug/client%s%s/region_%s.png' % (self.row, self.col, item_ref.split("/")[-1].split(".")[0]), _)
             
             return self.translate(Pos(
                 pt[0] + (w / 2),
@@ -62,7 +63,7 @@ class Session:
         threshold = 0.8
         loc = np.where(res >= threshold)
         if len(list(zip(*loc[::-1]))) < 1:
-            if config.DEBUG: print("CLIENT_SEARCH_ERROR: %s" % item_ref)
+            debug("CLIENT_SEARCH_ERROR: %s" % item_ref)
             return None
         
         for pt in zip(*loc[::-1]):

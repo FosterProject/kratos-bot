@@ -2,7 +2,7 @@
 from tools.session import Session
 
 # Utilities
-import account
+from utilities import account
 
 class Mining:
     def __init__(self, session):

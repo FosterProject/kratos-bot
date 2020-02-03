@@ -9,10 +9,10 @@ from tools.lib import debug
 from tools.lib import wait
 from tools import screen_search
 from tools import osrs_screen_grab as grabber
-import bot
+from tools import bot
 
 # Utilities
-import ui
+from utilities import ui
 
 # Images
 LOGOUT_CHECK = "bot_ref_imgs/quad_1080/account/logout_check.png"

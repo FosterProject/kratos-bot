@@ -7,7 +7,7 @@ import time
 import tools.osrs_screen_grab as grabber
 from tools.screen_pos import Pos
 from tools import config
-import bot
+from tools import bot
 
 # Movement
 IS_MOVING = False

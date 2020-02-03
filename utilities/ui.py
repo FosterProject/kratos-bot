@@ -4,7 +4,7 @@ import sys
 # Custom library
 from tools import osrs_screen_grab as grabber
 from tools.screen_pos import Pos
-import bot
+from tools import bot
 from tools import config
 from tools import screen_search
 from tools.lib import debug

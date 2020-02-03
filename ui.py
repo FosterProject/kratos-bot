@@ -1,10 +1,14 @@
 import random
+import sys
 
 # Custom library
+from tools import osrs_screen_grab as grabber
 from tools.screen_pos import Pos
 import bot
 from tools import config
 from tools import screen_search
+from tools.lib import debug
+from tools.lib import wait
 
 
 # BOUNDS
@@ -27,42 +31,54 @@ DRAG_BOUNDS = {
 DRAG_DURATION_MIN = 0.4
 DRAG_DURATION_MAX = 1.3
 
-
-def is_inventory_open():
-    check = screen_search.find_in_screen("bot_ref_imgs/ui/inv_icon_active.png")
-    if check is None:
-        return False, Pos.random(INVENTORY["TL"], INVENTORY["BR"])
-    return True, None
+# Images
+INVENTORY_ICON_ACTIVE = "bot_ref_imgs/quad_1080/ui/inv_icon_active.png"
 
 
-def open_inventory():
-    success, click_pos = is_inventory_open()
-    if success is True:
-        print("Inventory is already open you cock")
-    else:
-        bot.click(click_pos)
+def open_tab(session, side, item):
+    if side != "LEFT" and side != "RIGHT":
+        debug("UI: side value not LEFT or RIGHT")
+        sys.exit()
+    bar = grabber.BAR_LEFT_TOP if side == "LEFT" else grabber.BAR_RIGHT_TOP
+
+    tab_bounds = bar.copy()
+    tab_bounds.shift_y(item * tab_bounds.height)
+    
+    bot.click(session.translate(tab_bounds.random_point()))
 
 
-def click_compass():
-    bot.click(Pos.random(COMPASS["TL"], COMPASS["BR"]))
+def is_inventory_open(session):
+    check = session.find_in_client(INVENTORY_ICON_ACTIVE)
+    return check is not None
 
 
-def spin_around():
+def open_inventory(session):
+    debug("UI: Opening inventory")
+    while not is_inventory_open(session):
+        open_tab(session, "RIGHT", 0)
+        wait(.5, 2)
+
+
+def click_compass(session):
+    bot.click(session.translate(grabber.COMPASS.random_point()))
+
+
+def spin_around(session):
     y_bound = 25
-    x_error = 25
+    x_error = int(config.GAME_WIDTH / 10)
     y_error = 50
 
     x_start = random.randint(
-        DRAG_BOUNDS["TL"].x,
-        DRAG_BOUNDS["TL"].x + random.randint(5, x_error)
+        grabber.DRAG_BOUNDS.tl.x,
+        grabber.DRAG_BOUNDS.tl.x + random.randint(x_error, x_error * 2)
     )
     y_start = random.randint(
-        DRAG_BOUNDS["TL"].y,
-        DRAG_BOUNDS["BR"].y + random.randint(5, y_error)
+        grabber.DRAG_BOUNDS.tl.y,
+        grabber.DRAG_BOUNDS.br.y + random.randint(5, y_error)
     )
     x_end = random.randint(
-        int((DRAG_BOUNDS["BR"].x * 0.85)) - random.randint(5, x_error),
-        int(DRAG_BOUNDS["BR"].x * 0.85)
+        int((grabber.DRAG_BOUNDS.br.x * 0.85)) - random.randint(x_error, x_error * 2),
+        int(grabber.DRAG_BOUNDS.br.x * 0.85)
     )
     y_end = random.randint(
         y_start,
@@ -77,3 +93,4 @@ def spin_around():
     #     start = end
         # end = x
     bot.drag(start, end, round(random.uniform(DRAG_DURATION_MIN, DRAG_DURATION_MAX), 2))
+

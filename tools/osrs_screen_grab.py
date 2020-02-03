@@ -1,6 +1,9 @@
 from PIL import ImageGrab
 from . import config
-from .screen_pos import Pos
+from .screen_pos import Pos, Box
+
+
+INVENTORY = Box(Pos(612, 195), Pos(791, 444))
 
 # Constants
 MAP = {
@@ -24,6 +27,29 @@ INV_ICON = {
 }
 
 
+
+def grab(bounding_box, region=None, file_name="default_grab", save=False):
+    # if region is not None:
+    #     bounding_box.subdivision(region)
+    if region is None:
+        img = ImageGrab.grab(bbox=(bounding_box.tl.x, bounding_box.tl.y, bounding_box.br.x, bounding_box.br.y)).convert('RGB')
+    else:
+        img = ImageGrab.grab(bbox=(
+            bounding_box.tl.x + region.tl.x,
+            bounding_box.tl.y + region.tl.y,
+            bounding_box.tl.x + region.br.x,
+            bounding_box.tl.y + region.br.y
+        )).convert('RGB')
+    # img = ImageGrab.grab(bbox=(bounding_box.tl.x, bounding_box.tl.y, bounding_box.br.x, bounding_box.br.y)).convert('RGB')
+    if save:
+        file_path = '%s.png' % file_name
+        img.save(file_path)
+        return file_path
+    else:
+        return img
+
+
+# Depricated if not using Session
 def grab_fullscreen(file_name="current", save=False):
     img = ImageGrab.grab(bbox=(0, 0, config.SCREEN_WIDTH, config.SCREEN_HEIGHT)).convert('RGB')
     if save:
@@ -33,7 +59,7 @@ def grab_fullscreen(file_name="current", save=False):
     else:
         return img
 
-
+# Depricated if not using Session
 def grab_region(file_name="undefined", screen_region=MAP, save=False):
     img = ImageGrab.grab(bbox=(screen_region["TL"].x, screen_region["TL"].y, screen_region["BR"].x, screen_region["BR"].y)).convert('RGB')
     if save:

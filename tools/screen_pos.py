@@ -18,7 +18,19 @@ class Pos:
         return self
 
 
-    def add(self, x1, y1):
+    def add(self, p1):
+        self.x += p1.x
+        self.y += p1.y
+        return self
+
+
+    def subtract(self, p1):
+        self.x -= p1.x
+        self.y -= p1.y
+        return self
+
+
+    def add_raw(self, x1, y1):
         self.x += x1
         self.y += y1
         return self
@@ -42,6 +54,12 @@ class Box:
         self.width = br.x - tl.x
         self.height = br.y - tl.y
 
+
+    def subdivision(self, b1):
+        tmp = self.tl
+        self.tl.add(b1.tl)
+        self.br = tmp.add(b1.br)
+        return self
 
     def center(self):
         return Pos(

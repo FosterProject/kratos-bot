@@ -4,7 +4,6 @@ import random
 import time
 
 # Custom library
-import tools.osrs_screen_grab as grabber
 from tools.screen_pos import Pos, Box
 import bot
 from tools import config

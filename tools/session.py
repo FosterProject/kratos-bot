@@ -51,10 +51,10 @@ class Session:
                 cv2.rectangle(_, pt, (pt[0] + w, pt[1] + h), (25, 0, 255), 2)
                 cv2.imwrite('debug/client%s%s/region_%s.png' % (self.row, self.col, item_ref.split("/")[-1].split(".")[0]), _)
             
-            return self.translate(Pos(
-                pt[0] + (w / 2),
-                pt[1] + (h / 2)
-            ))
+            return self.translate(Box(
+                Pos(*pt),
+                Pos(pt[0] + w, pt[1] + h)
+            ).random_point(), region)
 
 
     def find_in_client(self, item_ref):
@@ -65,7 +65,7 @@ class Session:
         w, h = template.shape[::-1]
 
         res = cv2.matchTemplate(screen, template, cv2.TM_CCOEFF_NORMED)
-        threshold = self.region_threshold
+        threshold = self.client_threshold
         loc = np.where(res >= threshold)
         if len(list(zip(*loc[::-1]))) < 1:
             debug("CLIENT_SEARCH_ERROR: %s" % item_ref)
@@ -76,11 +76,13 @@ class Session:
                 cv2.rectangle(_, pt, (pt[0] + w, pt[1] + h), (25, 0, 255), 2)
                 cv2.imwrite('debug/client%s%s/screen_%s.png' % (self.row, self.col, item_ref.split("/")[-1].split(".")[0]), _)
             
-            return self.translate(Pos(
-                pt[0] + (w / 2),
-                pt[1] + (h / 2)
-            ))
+            return self.translate(Box(
+                Pos(*pt),
+                Pos(pt[0] + w, pt[1] + h)
+            ).random_point())
         
 
-    def translate(self, pos):
+    def translate(self, pos, region=None):
+        if region is not None:
+            pos.add(region.tl)
         return pos.add(self.screen_bounds.tl)

@@ -1,6 +1,8 @@
 import random
 import copy
 
+from tools.lib import debug
+
 class Pos:
     def __init__(self, x, y):
         self.x = x
@@ -58,6 +60,12 @@ class Box:
         self.br = br
         self.width = br.x - tl.x
         self.height = br.y - tl.y
+        self.random_bound_restriction = 0.01
+
+
+    def set_random_bound_restriction(self, val):
+        self.random_bound_restriction = val
+        return self
 
 
     def subdivision(self, b1):
@@ -84,7 +92,9 @@ class Box:
 
 
     def random_point(self):
+        width_weight = self.width / 5
+        height_weight = self.height / 5
         return Pos(
-            random.randint(self.tl.x, self.br.x),
-            random.randint(self.tl.y, self.br.y)
+            random.randint(int(self.tl.x + width_weight), int(self.br.x - width_weight)),
+            random.randint(int(self.tl.y + height_weight), int(self.br.y - height_weight))
         )

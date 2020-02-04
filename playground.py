@@ -6,16 +6,17 @@ config.DEBUG = True
 import pyautogui as bot
 
 from bots import mining
+from bots import bowstringer
 
 from utilities import account
 from utilities import ui
 from utilities import inventory
 
 s = Session(0, 0)
-s2 = Session(0, 1)
+# s2 = Session(0, 1)
 
-bot = mining.Mining(s)
+# bot = mining.Mining(s)
+# bot = bowstringer.Bowstringer(s)
 # ui.open_inventory(s)
 
-x = inventory.check_inventory(s, "bot_ref_imgs/quad_1080/fletching/bowstring.png")
-print(x)
+inventory.drop(s, mining.COPPER)

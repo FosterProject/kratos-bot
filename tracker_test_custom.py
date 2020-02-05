@@ -5,11 +5,14 @@ import numpy as np
 import random
 import time
 
+import sys
+
 import tools.osrs_screen_grab as grabber
 from tools import config
 import tools.image_lib as imlib
 from tools.screen_pos import Pos
 from tools import config
+from tools.session import Session
 
 
 # Window Constants (Used for an artificial (0,0) coord when translating click region back to screen)
@@ -20,7 +23,7 @@ TRANSLATION_TOPLEFT = Pos((config.SCREEN_WIDTH / 2) - TRANSLATION_DIST, (config.
 # Load in TFNet
 TFNET_OPTIONS = {
     "model": "cfg/yolo-kratos.cfg",
-    "gpu": 1.0,
+    # "gpu": 1.0,
     "load": -1,
     "labels": "./classes.txt",
     "threshold": 0.1
@@ -50,13 +53,12 @@ def translate_predictions_to_bbox(rocks):
     return bbox_result
 
 
-def initialise_trackers():
+def initialise_trackers(session):
     # Read in first frame
-    img_path = grabber.grab_fullscreen(file_name="stream", save=True)
+    img_path = grabber.grab(session.screen_bounds, None, file_name="stream", save=True)
     imlib.rescale(img_path).save("stream.png")
-    # frame = imlib.rescale_obj(grabber.grab_fullscreen())
-    # frame = np.array(frame)
     frame = cv2.imread("stream.png")
+    # frame = np.array(imlib.rescale_obj(grabber.grab(session.screen_bounds)))
 
     # Get bbox using TFNet
     print("> Initial predictions...")
@@ -77,8 +79,11 @@ def initialise_trackers():
     return trackers, tracker_colours
 
 
+
+session = Session(0, 0)
+
 print("Starting up a tracker...")
-trackers, tracker_colours = initialise_trackers()
+trackers, tracker_colours = initialise_trackers(session)
 print("... done.")
 print("Tracker Count: %s" % len(trackers))
 
@@ -92,7 +97,7 @@ while True:
     #     tracker, tracker_colours = initialise_tracker()
     
     # Get next frame
-    frame = np.array(imlib.rescale_obj(grabber.grab_fullscreen()))
+    frame = np.array(imlib.rescale_obj(grabber.grab(session.screen_bounds)))
 
     # Update tracker
     # print("> Updating trackers...")

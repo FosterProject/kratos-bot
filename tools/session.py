@@ -1,3 +1,6 @@
+import time
+import random
+
 import cv2
 import numpy as np
 
@@ -30,6 +33,10 @@ class Session:
         self.region_threshold = 0.3
         self.client_threshold = 0.8
 
+        # Timers
+        self.login_time = time.time()
+        self.login_time_max = 300
+
 
     # NOT WORKING PROPERLY
     def find_in_region_colour(self, region, item_ref):
@@ -59,7 +66,6 @@ class Session:
                 Pos(*pt),
                 Pos(pt[0] + w, pt[1] + h)
             ).random_point(), region)
-
 
 
     def find_in_region(self, region, item_ref):
@@ -139,3 +145,17 @@ class Session:
 
     def reset_region_threshold(self):
         self.region_threshold = 0.3
+
+
+    def get_login_length(self):
+        return time.time() - self.login_time
+
+
+    def set_login_time_max(self, min_time, max_time):
+        if max_time > 300: max_time = 300
+        if min_time < 5: min_time = 5
+        self.login_time_max = random.randint(min_time, max_time)
+    
+
+    def should_log_out(self):
+        return self.get_login_length() > self.login_time_max

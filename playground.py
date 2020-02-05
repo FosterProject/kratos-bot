@@ -13,20 +13,10 @@ from utilities import ui
 from utilities import inventory
 from utilities import bank
 
-from bots import mining
+# from bots import mining
 from bots import bowstringer
 
 s = Session(0, 0)
 s2 = Session(0, 1)
 
-items = [mining.COPPER, bowstringer.UNSTRUNG, bowstringer.BOWSTRING, bowstringer.LONGBOW]
-
-# bank.find_booth(s2)
-
-x = inventory.check_inventory(s2, items[3])
-
-# bank.withdraw_item(s2, mining.COPPER_BANK)
-
-# bank.bank_cycle(s2, [mining.COPPER_BANK])
-
-
+bank.find_booth(s2)

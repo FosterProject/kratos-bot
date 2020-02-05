@@ -1,4 +1,5 @@
 import time
+import random
 
 import cv2
 import numpy as np
@@ -70,6 +71,10 @@ def check_inventory(session, items, return_first=False):
 
     debug("Inventory - check_inventory: check time = %s" % round(time.time() - time_start, 3))
     return found
+
+
+def click_slot(session, slot):
+    bot.click(session.translate(INVENTORY_POSITIONS[slot].random_point()))
 
 
 def has_amount(session, item, limit):

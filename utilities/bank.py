@@ -17,10 +17,11 @@ from tools.lib import file_name
 
 # Reference Images
 BANK_BOOTH = [
-    "bot_ref_imgs/quad_1080/bank/bank_booth_1.png",
-    "bot_ref_imgs/quad_1080/bank/bank_booth_2.png",
-    "bot_ref_imgs/quad_1080/bank/bank_booth_3.png",
-    "bot_ref_imgs/quad_1080/bank/bank_booth_4.png"
+    # "bot_ref_imgs/quad_1080/bank/bank_booth_1.png",
+    # "bot_ref_imgs/quad_1080/bank/bank_booth_2.png",
+    # "bot_ref_imgs/quad_1080/bank/bank_booth_3.png",
+    # "bot_ref_imgs/quad_1080/bank/bank_booth_4.png",
+    "bot_ref_imgs/quad_1080/bank/bank_booth_5.png"
 ]
 WITHDRAW_X_INACTIVE = "bot_ref_imgs/quad_1080/bank/withdraw_x_inactive.png"
 WITHDRAW_X_AMOUNT = "bot_ref_imgs/quad_1080/bank/withdraw_x_amount.png"
@@ -61,7 +62,7 @@ def options_select_x(session):
         bot.click(session.translate(grabber.BANK_WITHDRAW_X.random_point()))
         wait(1, 2)
         # Check if amount menu pops up
-        check = session.set_region_threshold(0.6).find_in_region(grabber.BANK, WITHDRAW_X_AMOUNT)
+        check = session.find_in_client(WITHDRAW_X_AMOUNT)
         if check is not None:
             bot.type_string("14", True)
 

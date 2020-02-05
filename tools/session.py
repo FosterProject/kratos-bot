@@ -34,8 +34,8 @@ class Session:
         self.client_threshold = 0.8
 
         # Timers
-        self.login_time = time.time()
-        self.login_time_max = 300
+        self._login_time = time.time()
+        self._login_time_max = 300 * 60
 
 
     # NOT WORKING PROPERLY
@@ -147,15 +147,16 @@ class Session:
         self.region_threshold = 0.3
 
 
+    def reset_login_time(self):
+        self._login_time = time.time()
+
     def get_login_length(self):
-        return time.time() - self.login_time
+        return time.time() - self._login_time
 
 
     def set_login_time_max(self, min_time, max_time):
-        if max_time > 300: max_time = 300
-        if min_time < 5: min_time = 5
-        self.login_time_max = random.randint(min_time, max_time)
+        self._login_time_max = random.randint(min_time, max_time)
     
 
     def should_log_out(self):
-        return self.get_login_length() > self.login_time_max
+        return self.get_login_length() > self._login_time_max

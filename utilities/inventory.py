@@ -42,7 +42,7 @@ def check_inventory(session, items, return_first=False):
     time_start = time.time()
 
     # Force into an array
-    if not isinstance(item, list):
+    if not isinstance(items, list):
         items = [items]
 
     found = {}

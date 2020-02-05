@@ -73,15 +73,17 @@ def bank_inventory(session):
     bot.click(session.translate(grabber.BANK_DEPOSIT_INVENTORY.random_point()))
 
 
-def find_item(session, item_ref):
-    return session.set_region_threshold(0.6).find_in_region(grabber.BANK, item_ref)
+def find_item(session, item):
+    if item.has_unique_threshold():
+        session.set_region_threshold(item.threshold)
+    return session.find_in_region(grabber.BANK, item.reference)
 
 
-def withdraw_item(session, item_ref):
-    debug("BANK - withdraw_item: %s" % file_name(item_ref))
-    click_pos = find_item(session, item_ref)
+def withdraw_item(session, item):
+    debug("BANK - withdraw_item: %s" % file_name(item.reference))
+    click_pos = find_item(session, item)
     if click_pos is None:
-        debug("BANK - withdraw_item: Couldn't find item [%s]. Item is not in bank view." % file_name(item_ref))
+        debug("BANK - withdraw_item: Couldn't find item [%s]. Item is not in bank view." % file_name(item.reference))
         return
     # Already translated due to find_in_region
     bot.click(click_pos)

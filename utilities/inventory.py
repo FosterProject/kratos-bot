@@ -11,7 +11,7 @@ from tools import config
 from tools import screen_search
 from tools.lib import debug
 from tools.lib import wait
-
+from tools.lib import file_name
 
 # Constants
 ITEM_WIDTH = 32
@@ -57,7 +57,7 @@ def check_inventory(session, item_ref, return_first=False):
                     grabber.INVENTORY_ITEM_FIRST_POS.x + (x * ITEM_WIDTH) + (x * INVENTORY_BUFFER_WIDTH),
                     grabber.INVENTORY_ITEM_FIRST_POS.y + (y * ITEM_HEIGHT) + (y * INVENTORY_BUFFER_HEIGHT)
                 )
-                find = session.find_in_region(Box(
+                find = session.set_region_threshold(0.225).find_in_region(Box(
                     tl,
                     Pos(tl.x + ITEM_WIDTH, tl.y + ITEM_HEIGHT)
                 ), ref)
@@ -67,7 +67,8 @@ def check_inventory(session, item_ref, return_first=False):
                     if return_first: exit_early = True
 
 
-    debug("Inventory: check time = %s" % round(time.time() - time_start, 3))
+    for item in item_ref: debug("Inventory - check_inventory: %s [%s]" % (file_name(item), len(found[item])))
+    debug("Inventory - check_inventory: check time = %s" % round(time.time() - time_start, 3))
     return found
 
 

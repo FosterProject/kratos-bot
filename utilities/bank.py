@@ -11,108 +11,111 @@ from tools.screen_pos import Pos, Box
 from tools import bot
 from tools import config
 from tools import screen_search
+from tools.lib import wait
+from tools.lib import debug
+from tools.lib import file_name
 
-
+# Reference Images
 BANK_BOOTH = [
-    "bot_ref_imgs/banking/bank_booth.png",
-    "bot_ref_imgs/banking/bank_booth_2.png"
+    "bot_ref_imgs/quad_1080/bank/bank_booth_1.png",
+    "bot_ref_imgs/quad_1080/bank/bank_booth_2.png",
+    "bot_ref_imgs/quad_1080/bank/bank_booth_3.png",
+    "bot_ref_imgs/quad_1080/bank/bank_booth_4.png"
 ]
+WITHDRAW_X_INACTIVE = "bot_ref_imgs/quad_1080/bank/withdraw_x_inactive.png"
+WITHDRAW_X_AMOUNT = "bot_ref_imgs/quad_1080/bank/withdraw_x_amount.png"
+IS_BANK_OPEN = "bot_ref_imgs/quad_1080/bank/is_bank_open.png"
 
 
-BANK_WITHDRAW_X = Box(Pos(887, 989), Pos(932, 1028))
-
-
-def bank_cycle(withdraw=[]):
-    print(withdraw)
+def bank_cycle(session, withdraw=[]):
     # Open bank
-    while not is_bank_open():
-        open()
-        time.sleep(random.randint(2, 5))
+    while not is_bank_open(session):
+        open(session)
+        wait(2, 5)
     
     # Bank inventory
-    bank_inventory()
-    time.sleep(random.randint(1, 3))
+    bank_inventory(session)
+    wait(1, 3)
 
     # Withdraw items
     if isinstance(withdraw, list):
         for item in withdraw:
-            withdraw_item(item)
+            withdraw_item(session, item)
     else:
-        withdraw_item(withdraw)
+        withdraw_item(session, withdraw)
 
-    time.sleep(random.randint(1, 2))
+    wait(1, 2)
 
     # Close
-    close()
+    close(session)
 
 
-def is_select_x_inactive():
-    check = screen_search.find_in_screen("bot_ref_imgs/banking/withdraw_x_inactive.png")
+def is_select_x_inactive(session):
+    check = session.find_in_region(grabber.BANK, WITHDRAW_X_INACTIVE)
     return check is not None
 
 
-def options_select_x():
-    if is_select_x_inactive():
-        bot.click(BANK_WITHDRAW_X.random_point())
-        time.sleep(random.randint(1, 2))
+def options_select_x(session):
+    if is_select_x_inactive(session):
+        debug("BANK: Selecting 'withdraw x'")
+        bot.click(session.translate(grabber.BANK_WITHDRAW_X.random_point()))
+        wait(1, 2)
         # Check if amount menu pops up
-        check = screen_search.find_in_screen("bot_ref_imgs/banking/withdraw_x_amount.png")
+        check = session.set_region_threshold(0.6).find_in_region(grabber.BANK, WITHDRAW_X_AMOUNT)
         if check is not None:
             bot.type_string("14", True)
 
 
-
-def bank_inventory():
-    # Bank inventory
-    click_pos = screen_search.find_in_screen("bot_ref_imgs/banking/bank_inventory.png")
-    if click_pos is None:
-        print("Couldn't find bank inventory icon, something is terribly wrong.")
+def bank_inventory(session):
+    if not is_bank_open(session):
+        debug("BANK - bank_inventory: Bank wasn't open prior to calling this method. Exiting out, you fucked the script.")
         sys.exit()
-    bot.click(click_pos)
+    bot.click(session.translate(grabber.BANK_DEPOSIT_INVENTORY.random_point()))
 
 
-def find_item(item_ref):
-    return screen_search.find_in_screen(item_ref)
+def find_item(session, item_ref):
+    return session.set_region_threshold(0.6).find_in_region(grabber.BANK, item_ref)
 
 
-def withdraw_item(item_ref):
-    print("Withdrawing: %s" % item_ref)
-    click_pos = find_item(item_ref)
+def withdraw_item(session, item_ref):
+    debug("BANK - withdraw_item: %s" % file_name(item_ref))
+    click_pos = find_item(session, item_ref)
     if click_pos is None:
-        print("Couldn't find item [%s]. Item is not in bank view." % item_ref)
+        debug("BANK - withdraw_item: Couldn't find item [%s]. Item is not in bank view." % file_name(item_ref))
         return
+    # Already translated due to find_in_region
     bot.click(click_pos)
 
 
-def is_bank_open():
-    check = screen_search.find_in_screen("bot_ref_imgs/banking/open_bank.png")
+def is_bank_open(session):
+    check = session.find_in_region(grabber.BANK, IS_BANK_OPEN)
     return check is not None
 
 
-def find_booth():
+def find_booth(session):
     booth_found = False
     for booth in BANK_BOOTH:
-       check = screen_search.find_in_screen(booth)
+       check = session.find_in_client(booth)
        if check is not None:
            booth_found = True
+           break
            
     if not booth_found:
-        print("Couldn't find bank booth... fuck.")
+        debug("BANK - find_booth: Couldn't find bank booth in client")
         return None
     
     return check
   
 
-def close():
-    click_pos = screen_search.find_in_screen("bot_ref_imgs/banking/close_bank.png")
-    if click_pos is None:
-        print("Couldn't close the bank. Something is terribly wrong.")
-        sys.exit()
-    bot.click(click_pos)
+def close(session):
+    debug("BANK - close: Closing the bank")
+    if is_bank_open(session):
+        bot.click(session.translate(grabber.BANK_CLOSE.random_point()))
 
 
-def open():
-    booth = find_booth()
+def open(session):
+    booth = find_booth(session)
     if booth is None:
+        debug("BANK - open: Couldn't open the bank. Script is exiting because you're not in a bank.")
         sys.exit()
     bot.click(booth)

@@ -75,10 +75,15 @@ class Bowstringer:
         self.session.set_login_time_max(self.min_login_time, self.max_login_time)
 
 
+    # Run bot
     def run(self):
         debug("Kratos-Bot >> Starting main bot loop")
 
         while True:
+            if self.session.should_exit():
+                print("EXITING BOT LOOP")
+                break
+
             # Check if need to click true north
             self.true_north()
 

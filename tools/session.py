@@ -14,6 +14,12 @@ from tools.lib import file_name
 
 class Session:
     def __init__(self, row, col):
+        # Thread safety
+        self._exit_thread = False
+
+        # EventManager
+        self.has_pending_event = False
+
         # Screen position details
         self.row = row
         self.col = col
@@ -36,6 +42,14 @@ class Session:
         # Timers
         self._login_time = time.time()
         self._login_time_max = 300 * 60
+
+
+    def exit(self):
+        self._exit_thread = True
+
+
+    def should_exit(self):
+        return self._exit_thread
 
 
     # NOT WORKING PROPERLY

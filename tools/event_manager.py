@@ -22,7 +22,6 @@ class EventManager:
 
 
     def add_event(self, session, event):
-        print(session.has_pending_event)
         if session.has_pending_event:
             debug("EventManager - add_event: session already has an event pending.. bot is configured wrong")
             return

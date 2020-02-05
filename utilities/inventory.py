@@ -35,20 +35,20 @@ INVENTORY_POSITIONS = build_inventory_positions()
 from utilities import ui
 
 
-def check_inventory(session, item_ref, return_first=False):
+def check_inventory(session, items, return_first=False):
     # Open the inventory
     ui.open_inventory(session)
 
     time_start = time.time()
 
     # Force into an array
-    if not isinstance(item_ref, list):
-        item_ref = [item_ref]
+    if not isinstance(item, list):
+        items = [items]
 
     found = {}
-    for ref in item_ref:
+    for item in items:
         exit_early = False
-        found[ref] = []
+        found[item.reference] = []
         for x in range(0, 4):
             if exit_early: break
             for y in range(0, 7):
@@ -57,29 +57,29 @@ def check_inventory(session, item_ref, return_first=False):
                     grabber.INVENTORY_ITEM_FIRST_POS.x + (x * ITEM_WIDTH) + (x * INVENTORY_BUFFER_WIDTH),
                     grabber.INVENTORY_ITEM_FIRST_POS.y + (y * ITEM_HEIGHT) + (y * INVENTORY_BUFFER_HEIGHT)
                 )
-                find = session.set_region_threshold(0.225).find_in_region(Box(
+                if item.has_unique_threshold(): session.set_region_threshold(item.threshold)
+                find = session.find_in_region(Box(
                     tl,
                     Pos(tl.x + ITEM_WIDTH, tl.y + ITEM_HEIGHT)
-                ), ref)
+                ), item.reference)
 
                 if find is not None:
-                    found[ref].append(find)
+                    found[item.reference].append(find)
                     if return_first: exit_early = True
+        debug("Inventory - check_inventory: %s [%s]" % (file_name(item.reference), len(found[item.reference])))
 
-
-    for item in item_ref: debug("Inventory - check_inventory: %s [%s]" % (file_name(item), len(found[item])))
     debug("Inventory - check_inventory: check time = %s" % round(time.time() - time_start, 3))
     return found
 
 
-def has_amount(session, reference_image, limit):
-    found = check_inventory(session, reference_image)[reference_image]
+def has_amount(session, item, limit):
+    found = check_inventory(session, item.reference)[item.reference]
     debug("Inventory - has_amount: Found: %s" % len(found))
     return len(found) >= limit
 
 
-def drop(session, reference_image):
-    item_positions = check_inventory(session, reference_image)[reference_image]
+def drop(session, item):
+    item_positions = check_inventory(session, item.reference)[item.reference]
     for pos in item_positions:
         bot.click(pos)
         wait(0.5, 0.75)

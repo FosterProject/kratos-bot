@@ -19,7 +19,7 @@ import tools.image_lib as imlib
 import tools.osrs_screen_grab as grabber
 from tools.screen_pos import Pos, Box
 from tools import config
-import bot
+from tools import bot
 
 # OSRS Specific
 import inventory

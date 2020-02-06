@@ -5,9 +5,9 @@ from . import config
 
 
 # Calcs
-cx = config.SCREEN_WIDTH / 2
-cy = config.SCREEN_HEIGHT / 2
-y_offset = config.SCREEN_HEIGHT / 15
+cx = config.GAME_WIDTH / 2
+cy = config.GAME_HEIGHT / 2
+y_offset = config.GAME_HEIGHT / 15
 dist = cy - y_offset
 
 # Bounds

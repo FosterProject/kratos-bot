@@ -5,28 +5,24 @@ import numpy as np
 import random
 import time
 
+import sys
+
 import tools.osrs_screen_grab as grabber
 from tools import config
 import tools.image_lib as imlib
 from tools.screen_pos import Pos
 from tools import config
-
-
-# Window Constants (Used for an artificial (0,0) coord when translating click region back to screen)
-TRANSLATION_DIST = ((config.SCREEN_HEIGHT / 2) - (config.SCREEN_HEIGHT / 15))
-TRANSLATION_TOPLEFT = Pos((config.SCREEN_WIDTH / 2) - TRANSLATION_DIST, (config.SCREEN_HEIGHT / 2) - TRANSLATION_DIST)
+from tools.session import Session
 
 
 # Load in TFNet
 TFNET_OPTIONS = {
-    "model": "cfg/yolo-kratos.cfg",
-    "gpu": 1.0,
-    "load": -1,
+    "pbLoad": "built_graph/yolo-kratos.pb",
+    "metaLoad": "built_graph/yolo-kratos.meta",
     "labels": "./classes.txt",
     "threshold": 0.1
 }
 TF_NET = TFNet(TFNET_OPTIONS)
-TF_NET.load_from_ckpt()
 
 
 def translate_predictions_to_bbox(rocks):
@@ -50,13 +46,12 @@ def translate_predictions_to_bbox(rocks):
     return bbox_result
 
 
-def initialise_trackers():
+def initialise_trackers(session):
     # Read in first frame
-    img_path = grabber.grab_fullscreen(file_name="stream", save=True)
+    img_path = grabber.grab(session.screen_bounds, None, file_name="stream", save=True)
     imlib.rescale(img_path).save("stream.png")
-    # frame = imlib.rescale_obj(grabber.grab_fullscreen())
-    # frame = np.array(frame)
     frame = cv2.imread("stream.png")
+    # frame = np.array(imlib.rescale_obj(grabber.grab(session.screen_bounds)))
 
     # Get bbox using TFNet
     print("> Initial predictions...")
@@ -77,8 +72,11 @@ def initialise_trackers():
     return trackers, tracker_colours
 
 
+
+session = Session(0, 0)
+
 print("Starting up a tracker...")
-trackers, tracker_colours = initialise_trackers()
+trackers, tracker_colours = initialise_trackers(session)
 print("... done.")
 print("Tracker Count: %s" % len(trackers))
 
@@ -86,13 +84,13 @@ print("Tracker Count: %s" % len(trackers))
 print("Starting stream...")
 refresh_tracker_timer = time.time()
 while True:
-    # if time.time() - refresh_tracker_timer > 7:
-    #     print("Refreshing tracker...")
-    #     refresh_tracker_timer = time.time()
-    #     tracker, tracker_colours = initialise_tracker()
+    if time.time() - refresh_tracker_timer > 7:
+        print("Refreshing tracker...")
+        refresh_tracker_timer = time.time()
+        trackers, tracker_colours = initialise_trackers(session)
     
     # Get next frame
-    frame = np.array(imlib.rescale_obj(grabber.grab_fullscreen()))
+    frame = np.array(imlib.rescale_obj(grabber.grab(session.screen_bounds)))
 
     # Update tracker
     # print("> Updating trackers...")

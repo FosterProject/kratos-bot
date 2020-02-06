@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 import random
 import time
@@ -48,13 +47,7 @@ def login(session):
     debug("Logging in...")
 
     # Click login
-    click_event = Event([
-        (Event.click(session.translate(grabber.LOGIN_BUTTON.random_point())), (.1, .2))
-    ])
-    EM.add_event(session, click_event)
-    while session.has_pending_event:
-        wait(1, 2)
-
+    Event.basic_click(session, session.translate(grabber.LOGIN_BUTTON.random_point()))
 
     # Enter game
     while not is_in_lobby(session):
@@ -62,23 +55,28 @@ def login(session):
         # If connection failed
         if not is_connecting(session):
             # Log in again
-            bot.click(session.translate(grabber.LOGIN_BUTTON.random_point()))
+            Event.basic_click(session, session.translate(grabber.LOGIN_BUTTON.random_point()))
     
     # Enter through lobby
-    bot.click(session.translate(grabber.LOBBY_BUTTON.random_point()))
+    Event.basic_click(session, session.translate(grabber.LOBBY_BUTTON.random_point()))
 
 
 def logout(session):
     if is_logged_out(session):
         debug("Account: Already logged out you plum")
         return
-    
+
+    # Event
+    event = Event()
+
     click_pos = session.find_in_client(LOGOUT_INACTIVE)
     if click_pos is not None:
         debug("Account: Opening logout tab")
-        ui.open_tab(session, "RIGHT", 6)
-
-    wait(1, 2)
+        tab_pos = ui.open_tab(session, "RIGHT", 6)
+        event.add_action(Event.click(tab_pos), (.5, 1))
 
     # Click logout button
-    bot.click(session.translate(grabber.LOGOUT_BUTTON.random_point()))
+    logout_pos = session.translate(grabber.LOGOUT_BUTTON.random_point())
+    event.add_action(Event.click(logout_pos), (.5, 1))
+
+    session.publish_event(event)

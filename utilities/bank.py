@@ -14,6 +14,7 @@ from tools import screen_search
 from tools.lib import wait
 from tools.lib import debug
 from tools.lib import file_name
+from tools.event_manager import Event
 
 # Reference Images
 BANK_BOOTH = [
@@ -59,19 +60,22 @@ def is_select_x_inactive(session):
 def options_select_x(session):
     if is_select_x_inactive(session):
         debug("BANK: Selecting 'withdraw x'")
-        bot.click(session.translate(grabber.BANK_WITHDRAW_X.random_point()))
-        wait(1, 2)
+
+        # Click withdraw x
+        event = Event([
+            (Event.click(session.translate(grabber.BANK_WITHDRAW_X.random_point())), (1, 2))
+        ])
+
         # Check if amount menu pops up
         check = session.find_in_client(WITHDRAW_X_AMOUNT)
         if check is not None:
-            bot.type_string("14", True)
+            event.add_action(Event.type_string("14", True), (.5, 1))
+
+        session.publish_event(event)
 
 
 def bank_inventory(session):
-    if not is_bank_open(session):
-        debug("BANK - bank_inventory: Bank wasn't open prior to calling this method. Exiting out, you fucked the script.")
-        sys.exit()
-    bot.click(session.translate(grabber.BANK_DEPOSIT_INVENTORY.random_point()))
+    return session.translate(grabber.BANK_DEPOSIT_INVENTORY.random_point())
 
 
 def find_item(session, item):
@@ -87,7 +91,7 @@ def withdraw_item(session, item):
         debug("BANK - withdraw_item: Couldn't find item [%s]. Item is not in bank view." % file_name(item.reference))
         return
     # Already translated due to find_in_region
-    bot.click(click_pos)
+    return click_pos
 
 
 def is_bank_open(session):
@@ -113,12 +117,13 @@ def find_booth(session):
 def close(session):
     debug("BANK - close: Closing the bank")
     if is_bank_open(session):
-        bot.click(session.translate(grabber.BANK_CLOSE.random_point()))
+        return session.translate(grabber.BANK_CLOSE.random_point())
+    return None
 
 
 def open(session):
-    booth = find_booth(session)
-    if booth is None:
+    booth_pos = find_booth(session)
+    if booth_pos is None:
         debug("BANK - open: Couldn't open the bank. Script is exiting because you're not in a bank.")
         sys.exit()
-    bot.click(booth)
+    return booth_pos

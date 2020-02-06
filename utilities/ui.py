@@ -30,8 +30,8 @@ def open_tab(session, side, item):
 
     tab_bounds = bar.copy()
     tab_bounds.shift_y(item * BAR_TAB_HEIGHT)
-    
-    bot.click(session.translate(tab_bounds.random_point()))
+
+    return session.translate(tab_bounds.random_point())
 
 
 def is_inventory_open(session):
@@ -42,12 +42,11 @@ def is_inventory_open(session):
 def open_inventory(session):
     debug("UI: Opening inventory")
     while not is_inventory_open(session):
-        open_tab(session, "RIGHT", 0)
-        wait(0.5, 2)
+        return open_tab(session, "RIGHT", 0)
 
 
 def click_compass(session):
-    bot.click(session.translate(grabber.COMPASS.random_point()))
+    return session.translate(grabber.COMPASS.random_point())
 
 
 def spin_around(session):

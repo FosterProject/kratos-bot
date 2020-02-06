@@ -9,6 +9,8 @@ from tools.session import Session
 from tools import bot
 from tools.lib import wait
 from tools.lib import debug
+from tools.lib import error
+from tools.event_manager import EventManager, Event
 
 # Utilities
 from utilities import account
@@ -53,8 +55,10 @@ class Bowstringer:
         wait(2, 3)
 
         # True north
-        ui.click_compass(self.session)
-        wait(.5, 1)
+        compass_pos = ui.click_compass(self.session)
+        self.session.publish_event(Event([
+            (Event.click(compass_pos), (.2, .4))
+        ]))
 
         # At bank check
         if bank.find_booth(self.session) is None:
@@ -62,11 +66,13 @@ class Bowstringer:
             sys.exit()
         
         # Open inventory
-        ui.open_inventory(self.session)
-        wait(.5, 1)
+        open_inventory_pos = ui.open_inventory(self.session)
+        self.session.publish_event(Event([
+            (Event.click(open_inventory_pos), (.5, 1))
+        ]))
 
+        # Open bank and empty inventory
         self.bank_inventory()
-        wait(.3, .8)
 
         # Toggle select x
         bank.options_select_x(self.session)
@@ -87,28 +93,36 @@ class Bowstringer:
                 print("EXITING BOT LOOP")
                 break
 
+            # Start an event list
+            event = Event()
+
+            # Withdraw bows and strings
+            self.withdraw_resources(event)
+
+            # Close the bank
+            bank_close_pos = bank.close(self.session)
+            if bank_close_pos is None:
+                error("bot has fallen out of sync, it thinks the bank is open and when it isn't")
+                return
+            event.add_action(Event.click(bank_close_pos), (.8, 1.3))
+
+            # Start stringing action
+            self.start_stringing_action(event)
+
+            # Confirm stringing
+            self.confirm_stringing(event)
+
+            # Kick off all those actions
+            self.session.publish_event(event)
+
+            # Wait for minimum stringing time in case the event gets processed immediately
+            wait(STRINGING_TIME, STRINGING_TIME + self._stringing_time_error)
+
             # Check if need to click true north
             self.true_north()
 
-            # Withdraw bows and strings
-            self.withdraw_resources()
-
-            # Close the bank
-            bank.close(self.session)
-            wait(1, 2)
-
-            # Start stringing action
-            self.start_stringing_action()
-
-            # Confirm stringing
-            self.confirm_stringing()
-
-            # Wait for stringing
-            wait(STRINGING_TIME, STRINGING_TIME + self._stringing_time_error)
-
             # Bank inventory
             self.bank_inventory()
-            wait(.5, 1)
 
             # Check if we need to log out
             if self.session.should_log_out():
@@ -127,36 +141,48 @@ class Bowstringer:
 
 
     def bank_inventory(self):
+        event = Event()
+
+        # Open bank
+        if not bank.is_bank_open(self.session):
+            booth_pos = bank.open(self.session)
+            event.add_action(Event.click(booth_pos), (1.5, 2.5))
+
         # Empty inventory
-        while not bank.is_bank_open(self.session):
-            bank.open(self.session)
-            wait(1, 2)
-        bank.bank_inventory(self.session)
+        bank_inventory_pos = bank.bank_inventory(self.session)
+        event.add_action(Event.click(bank_inventory_pos), (.5, 1))
+
+        # Publish actions
+        self.session.publish_event(event)
 
 
-    def start_stringing_action(self):
+    def start_stringing_action(self, event):
         # Click on inventory tile between 0 - 13
-        inventory.click_slot(self.session, random.randint(0, 13))
-        wait(.5, 1.2)
-        inventory.click_slot(self.session, random.randint(14, 27))
-        wait(.5, 1.2)
+        pos1 = inventory.click_slot(self.session, random.randint(0, 13))
+        pos2 = inventory.click_slot(self.session, random.randint(14, 27))
+        event.add_action(Event.click(pos1), (.8, 1.2))
+        event.add_action(Event.click(pos2), (1.5, 2.5))
 
 
-    def confirm_stringing(self):
-        bot.press_space()
+    def confirm_stringing(self, event):
+        event.add_action(Event.press_space())
 
 
-    def withdraw_resources(self):
-        bank.withdraw_item(self.session, UNSTRUNG_SHORT)
-        wait(1, 2)
-        bank.withdraw_item(self.session, BOWSTRING_SHORT)
-        wait(1, 2)
+    def withdraw_resources(self, event):
+        unstrung_pos = bank.withdraw_item(self.session, UNSTRUNG_SHORT)
+        bowstring_pos = bank.withdraw_item(self.session, BOWSTRING_SHORT)
+        event.add_action(Event.click(unstrung_pos), (.5, 1))
+        event.add_action(Event.click(bowstring_pos), (.5, 1))
 
 
     def true_north(self):
         if time.time() - self._true_north_timer >= self._true_north_timer_cap:
-            ui.click_compass(self.session)
+            # Reset timers
             self._true_north_timer_cap = random.randint(8, 25)
             self._true_north_timer = time.time()
 
-
+            # Click compass
+            compass_pos = ui.click_compass(self.session)
+            self.session.publish_event(Event([
+                (Event.click(compass_pos))
+            ]))

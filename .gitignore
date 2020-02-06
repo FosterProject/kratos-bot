@@ -1,6 +1,8 @@
+.idea
 __pycache__
 bin
 ckpt
+built_graph
 flow
 debug
 
@@ -10,3 +12,4 @@ RAW_TEST_DATA
 ckpt.zip
 
 snip_invent.py
+stream.png

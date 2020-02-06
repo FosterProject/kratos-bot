@@ -15,21 +15,14 @@ from tools import config
 from tools.session import Session
 
 
-# Window Constants (Used for an artificial (0,0) coord when translating click region back to screen)
-TRANSLATION_DIST = ((config.SCREEN_HEIGHT / 2) - (config.SCREEN_HEIGHT / 15))
-TRANSLATION_TOPLEFT = Pos((config.SCREEN_WIDTH / 2) - TRANSLATION_DIST, (config.SCREEN_HEIGHT / 2) - TRANSLATION_DIST)
-
-
 # Load in TFNet
 TFNET_OPTIONS = {
-    "model": "cfg/yolo-kratos.cfg",
-    # "gpu": 1.0,
-    "load": -1,
+    "pbLoad": "built_graph/yolo-kratos.pb",
+    "metaLoad": "built_graph/yolo-kratos.meta",
     "labels": "./classes.txt",
     "threshold": 0.1
 }
 TF_NET = TFNet(TFNET_OPTIONS)
-TF_NET.load_from_ckpt()
 
 
 def translate_predictions_to_bbox(rocks):
@@ -91,10 +84,10 @@ print("Tracker Count: %s" % len(trackers))
 print("Starting stream...")
 refresh_tracker_timer = time.time()
 while True:
-    # if time.time() - refresh_tracker_timer > 7:
-    #     print("Refreshing tracker...")
-    #     refresh_tracker_timer = time.time()
-    #     tracker, tracker_colours = initialise_tracker()
+    if time.time() - refresh_tracker_timer > 7:
+        print("Refreshing tracker...")
+        refresh_tracker_timer = time.time()
+        trackers, tracker_colours = initialise_trackers(session)
     
     # Get next frame
     frame = np.array(imlib.rescale_obj(grabber.grab(session.screen_bounds)))

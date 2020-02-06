@@ -13,6 +13,7 @@ from tools import screen_search
 from tools.lib import debug
 from tools.lib import wait
 from tools.lib import file_name
+from tools.event_manager import Event
 
 # Constants
 ITEM_WIDTH = 32
@@ -74,7 +75,7 @@ def check_inventory(session, items, return_first=False):
 
 
 def click_slot(session, slot):
-    bot.click(session.translate(INVENTORY_POSITIONS[slot].random_point()))
+    return session.translate(INVENTORY_POSITIONS[slot].random_point())
 
 
 def has_amount(session, item, limit):
@@ -85,6 +86,7 @@ def has_amount(session, item, limit):
 
 def drop(session, item):
     item_positions = check_inventory(session, item.reference)[item.reference]
+    event = Event()
     for pos in item_positions:
-        bot.click(pos)
-        wait(0.5, 0.75)
+        event.add_action(Event.click(pos), (.3, .75))
+    session.publish_event(event)

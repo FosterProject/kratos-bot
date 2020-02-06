@@ -9,8 +9,8 @@ config.DEBUG = True
 
 
 # Event Manager
-from tools import event_manager as em
-EVENT_MANAGER = em.EventManager()
+from tools.event_manager import EventManager
+EM = EventManager.get_instance()
 
 # Sessions
 s2 = Session(0, 1)
@@ -19,7 +19,7 @@ s2 = Session(0, 1)
 # Define bots
 from bots import bowstringer
 bots = [
-    {"bot": bowstringer.Bowstringer(s2), "thread": None}   
+    {"bot": bowstringer.Bowstringer(s2), "thread": None}
 ]
 
 # Run bots
@@ -30,7 +30,7 @@ for bot in bots:
 
 try:
     while True:
-        EVENT_MANAGER.process_event()
+        EM.process_event()
         time.sleep(.5)
 except KeyboardInterrupt:
     pass

@@ -4,6 +4,7 @@ from tools import bot
 from tools.lib import debug
 from tools.lib import wait
 
+
 class EventManager:
     __instance = None
     @staticmethod
@@ -55,16 +56,15 @@ class EventManager:
         session.has_pending_event = False
 
 
-
 class Event:
-    def __init__(self, actions):
+    def __init__(self, actions=[]):
         self.actions = []
         if isinstance(actions, list):
             for action, delay in actions:
                 self.add_action(action, delay)
 
     
-    def add_action(self, action, delay):
+    def add_action(self, action, delay=(.1, .2)):
         if not callable(action):
             debug("Event - add_action: action is not a callable")
             return
@@ -73,6 +73,13 @@ class Event:
             wait(*delay)
         self.actions.append(ac)
     
+
+    @staticmethod
+    def basic_click(session, pos, wait=(.1, .2)):
+        click_event = Event([
+            (Event.click(pos), (.1, .2))
+        ])
+        session.publish_event(click_event)
 
     @staticmethod
     def click(pos):

@@ -4,12 +4,17 @@ import random
 import cv2
 import numpy as np
 
+# Event Manager
+from tools.event_manager import EventManager
+EM = EventManager.get_instance()
+
 # Custom Library
 import tools.osrs_screen_grab as grabber
 from tools.screen_pos import Pos, Box
 from tools import config
 from tools.lib import debug
 from tools.lib import file_name
+from tools.lib import wait
 
 
 class Session:
@@ -51,6 +56,11 @@ class Session:
     def should_exit(self):
         return self._exit_thread
 
+
+    def publish_event(self, event):
+        EM.add_event(self, event)
+        while self.has_pending_event and not self._exit_thread:
+            wait(.5, 1)
 
     # NOT WORKING PROPERLY
     def find_in_region_colour(self, region, item_ref):

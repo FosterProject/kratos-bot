@@ -77,6 +77,9 @@ class Bowstringer:
 
     # Run bot
     def run(self):
+        debug("Kratos-Bot >> Running startup routine")
+        self.startup()
+
         debug("Kratos-Bot >> Starting main bot loop")
 
         while True:

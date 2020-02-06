@@ -29,6 +29,7 @@ class EventManager:
             debug("EventManager - add_event: event is not of type Event")
             return
         with self.__lock:
+            debug("EventManager - add_event: adding event to the event stack")
             self.__event_stack.append((event, session))
             session.has_pending_event = True
 
@@ -43,6 +44,8 @@ class EventManager:
                 exit_early = True
         if exit_early:
             return
+
+        debug("Processing event")
 
         # Process event
         for action in event.actions:

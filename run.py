@@ -1,4 +1,5 @@
 import threading
+import time
 
 from tools import config
 from tools.session import Session
@@ -23,13 +24,19 @@ bots = [
 
 # Run bots
 for bot in bots:
-    bot["bot"].startup()
     thread = threading.Thread(target=bot["bot"].run)
     bot["thread"] = thread
     thread.start()
 
+try:
+    while True:
+        EVENT_MANAGER.process_event()
+        time.sleep(.5)
+except KeyboardInterrupt:
+    pass
 
 # Exit threads and bots
+print("Shutting down bots... waiting for them to finish their loop")
 for bot in bots:
     bot["bot"].session.exit()
     bot["thread"].join()

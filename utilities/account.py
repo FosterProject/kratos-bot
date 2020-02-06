@@ -48,8 +48,13 @@ def login(session):
     debug("Logging in...")
 
     # Click login
-    click_event = Event()
-    bot.click(session.translate(grabber.LOGIN_BUTTON.random_point()))
+    click_event = Event([
+        (Event.click(session.translate(grabber.LOGIN_BUTTON.random_point())), (.1, .2))
+    ])
+    EM.add_event(session, click_event)
+    while session.has_pending_event:
+        wait(1, 2)
+
 
     # Enter game
     while not is_in_lobby(session):

@@ -9,8 +9,9 @@ session = Session(0, 0)
 print("Session - has_pending_event: %s" % session.has_pending_event)
 
 em = EventManager()
-event = Event()
-event.add_action(event.click(Pos(150, 150)), (3, 5))
+event = Event([(Event.click(Pos(150, 150)), (3, 5))])
+print(event.actions)
+# event.add_action(event.click(Pos(150, 150)), (3, 5))
 em.add_event(session, event)
 em.add_event(session, event)
 

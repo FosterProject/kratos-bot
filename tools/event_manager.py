@@ -54,8 +54,11 @@ class EventManager:
 
 
 class Event:
-    def __init__(self):
+    def __init__(self, actions):
         self.actions = []
+        if isinstance(actions, list):
+            for action, delay in actions:
+                self.add_action(action, delay)
 
     
     def add_action(self, action, delay):
@@ -68,21 +71,22 @@ class Event:
         self.actions.append(ac)
     
 
-    def click(self, pos):
+    @staticmethod
+    def click(pos):
         return lambda: bot.click(pos)
 
-
-    def drag(self, pos1, pos2, time):
+    @staticmethod
+    def drag(pos1, pos2, time):
         return lambda: bot.drag(pos1, pos2, time)
 
-    
-    def type_string(self, string, send=False):
+    @staticmethod
+    def type_string(string, send=False):
         return lambda: bot.type_string(string, send)
     
-
-    def press_enter(self):
+    @staticmethod
+    def press_enter():
         return lambda: bot.press_enter()
 
-
-    def press_space(self):
+    @staticmethod
+    def press_space():
         return lambda: bot.press_space()

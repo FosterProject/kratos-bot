@@ -7,12 +7,16 @@ import time
 from tools.screen_pos import Pos, Box
 from tools.lib import debug
 from tools.lib import wait
-from tools import screen_search
 from tools import osrs_screen_grab as grabber
+from tools import screen_search
 from tools import bot
+from tools.event_manager import EventManager, Event
 
 # Utilities
 from utilities import ui
+
+# Event Manager
+EM = EventManager.get_instance()
 
 # Images
 LOGOUT_CHECK = "bot_ref_imgs/quad_1080/account/logout_check.png"
@@ -44,6 +48,7 @@ def login(session):
     debug("Logging in...")
 
     # Click login
+    click_event = Event()
     bot.click(session.translate(grabber.LOGIN_BUTTON.random_point()))
 
     # Enter game

@@ -63,10 +63,7 @@ class Tanner:
             sys.exit()
 
         # Open bank and empty inventory
-        self.bank_inventory()
-
-        # Withdraw cash stack
-        self.withdraw_cash_stack()
+        self.bank_hides()
 
         # Toggle select x
         bank.options_select_all(self.session)
@@ -105,14 +102,13 @@ class Tanner:
 
 
             # Move to tanner
-            self.start_stringing_action(event)
 
             # Find tanner and tan hides
 
             # Move to bank
 
             # Bank inventory
-            self.bank_inventory()
+            self.bank_hides()
 
             # Check if we need to log out
             if self.session.should_log_out():
@@ -130,7 +126,7 @@ class Tanner:
                 self.startup()
 
 
-    def bank_inventory(self):
+    def bank_hides(self):
         event = Event()
 
         # Open bank
@@ -139,8 +135,9 @@ class Tanner:
             event.add_action(Event.click(booth_pos), (1.5, 2.5))
 
         # Empty inventory
-        bank_inventory_pos = bank.bank_inventory(self.session)
-        event.add_action(Event.click(bank_inventory_pos), (.5, 1))
+        rand_inv_slot = random.randint(1, 27)
+        hide_inventory_pos = self.session.translate(inventory.INVENTORY_POSITIONS[rand_inv_slot].random_point())
+        event.add_action(Event.click(hide_inventory_pos), (.5, 1))
 
         # Publish actions
         self.session.publish_event(event)

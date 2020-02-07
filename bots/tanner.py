@@ -20,16 +20,14 @@ from utilities import inventory
 from utilities.items import Item
 
 # Image References
-BOWSTRING = Item("bot_ref_imgs/fletching/bowstring.png", 0.32)
-BOWSTRING_SHORT = Item("bot_ref_imgs/fletching/bowstring_short.png", 0.32)
-UNSTRUNG = Item("bot_ref_imgs/fletching/yew_unstrung.png", 0.33)
-UNSTRUNG_SHORT = Item("bot_ref_imgs/fletching/yew_unstrung_short.png", 0.33)
-LONGBOW = Item("bot_ref_imgs/fletching/yew_longbow.png")
+UNTANNED_HIDE = "bot_ref_imgs/tanner/cowhide.png"
+TANNED_HIDE = "bot_ref_imgs/tanner/hard_leather.png"
+CASH_STACK_BANK = "bot_ref_imgs/tanner/cash_stack_bank.png"
 
 # Constants
-STRINGING_TIME = 18
 
-class Bowstringer:
+
+class Tanner:
     def __init__(self, session):
         self.session = session
 
@@ -44,12 +42,11 @@ class Bowstringer:
         self._true_north_timer_cap = 14 * 60
 
         # Randomness variables
-        self._stringing_time_error = 5
 
     
     # Bot startup actions
     def startup(self):
-        debug("Kratos-Bot >> Running Bowstringer startup...")
+        debug("Kratos-Bot >> Running Tanner startup...")
         # Login
         account.login(self.session)
         wait(2, 3)
@@ -62,20 +59,17 @@ class Bowstringer:
 
         # At bank check
         if bank.find_booth(self.session) is None:
-            print("Kratos-Bot >> Please start this bot at a south-facing bank")
+            print("Kratos-Bot >> Please start this bot in Al Kharid bank")
             sys.exit()
-        
-        # Open inventory
-        open_inventory_pos = ui.open_inventory(self.session)
-        self.session.publish_event(Event([
-            (Event.click(open_inventory_pos), (.5, 1))
-        ]))
 
         # Open bank and empty inventory
         self.bank_inventory()
 
+        # Withdraw cash stack
+        self.withdraw_cash_stack()
+
         # Toggle select x
-        bank.options_select_x(self.session)
+        bank.options_select_all(self.session)
 
         # Setup login timers
         self.session.set_login_time_max(self.min_login_time, self.max_login_time)
@@ -96,7 +90,7 @@ class Bowstringer:
             # Start an event list
             event = Event()
 
-            # Withdraw bows and strings
+            # Withdraw untanned hides
             self.withdraw_resources(event)
 
             # Close the bank
@@ -106,20 +100,16 @@ class Bowstringer:
                 return
             event.add_action(Event.click(bank_close_pos), (.8, 1.3))
 
-            # Start stringing action
-            self.start_stringing_action(event)
-
-            # Confirm stringing
-            self.confirm_stringing(event)
-
-            # Kick off all those actions
+            # Publish this current event and wait for processing
             self.session.publish_event(event)
 
-            # Wait for minimum stringing time in case the event gets processed immediately
-            wait(STRINGING_TIME, STRINGING_TIME + self._stringing_time_error)
 
-            # Check if need to click true north
-            self.true_north()
+            # Move to tanner
+            self.start_stringing_action(event)
+
+            # Find tanner and tan hides
+
+            # Move to bank
 
             # Bank inventory
             self.bank_inventory()
@@ -156,23 +146,14 @@ class Bowstringer:
         self.session.publish_event(event)
 
 
-    def start_stringing_action(self, event):
-        # Click on inventory tile between 0 - 13
-        pos1 = inventory.click_slot(self.session, random.randint(0, 13))
-        pos2 = inventory.click_slot(self.session, random.randint(14, 27))
-        event.add_action(Event.click(pos1), (.8, 1.2))
-        event.add_action(Event.click(pos2), (1.5, 2.5))
-
-
-    def confirm_stringing(self, event):
-        event.add_action(Event.press_space())
+    def withdraw_cash_stack(self):
+        # TODO: Implement this function
+        pass
 
 
     def withdraw_resources(self, event):
-        unstrung_pos = bank.withdraw_item(self.session, UNSTRUNG_SHORT)
-        bowstring_pos = bank.withdraw_item(self.session, BOWSTRING_SHORT)
-        event.add_action(Event.click(unstrung_pos), (.5, 1))
-        event.add_action(Event.click(bowstring_pos), (.5, 1))
+        res1_pos = bank.withdraw_item(self.session, UNTANNED_HIDE)
+        event.add_action(Event.click(res1_pos), (.5, 1))
 
 
     def true_north(self):

@@ -18,15 +18,16 @@ from tools.event_manager import Event
 
 # Reference Images
 BANK_BOOTH = [
-    # "bot_ref_imgs/quad_1080/bank/bank_booth_1.png",
-    # "bot_ref_imgs/quad_1080/bank/bank_booth_2.png",
-    # "bot_ref_imgs/quad_1080/bank/bank_booth_3.png",
-    # "bot_ref_imgs/quad_1080/bank/bank_booth_4.png",
-    "bot_ref_imgs/quad_1080/bank/bank_booth_5.png"
+    # "bot_ref_imgs/bank/bank_booth_1.png",
+    # "bot_ref_imgs/bank/bank_booth_2.png",
+    # "bot_ref_imgs/bank/bank_booth_3.png",
+    # "bot_ref_imgs/bank/bank_booth_4.png",
+    "bot_ref_imgs/bank/bank_booth_5.png"
 ]
-WITHDRAW_X_INACTIVE = "bot_ref_imgs/quad_1080/bank/withdraw_x_inactive.png"
-WITHDRAW_X_AMOUNT = "bot_ref_imgs/quad_1080/bank/withdraw_x_amount.png"
-IS_BANK_OPEN = "bot_ref_imgs/quad_1080/bank/is_bank_open.png"
+WITHDRAW_ALL_INACTIVE = "bot_ref_imgs/bank/withdraw_all_inactive.png"
+WITHDRAW_X_INACTIVE = "bot_ref_imgs/bank/withdraw_x_inactive.png"
+WITHDRAW_X_AMOUNT = "bot_ref_imgs/bank/withdraw_x_amount.png"
+IS_BANK_OPEN = "bot_ref_imgs/bank/is_bank_open.png"
 
 
 def bank_cycle(session, withdraw=[]):
@@ -55,6 +56,23 @@ def bank_cycle(session, withdraw=[]):
 def is_select_x_inactive(session):
     check = session.find_in_region(grabber.BANK, WITHDRAW_X_INACTIVE)
     return check is not None
+
+
+def is_select_all_inactive(session):
+    check = session.find_in_region(grabber.BANK, WITHDRAW_ALL_INACTIVE)
+    return check is not None
+
+
+def options_select_all(session):
+    if is_select_all_inactive(session):
+        debug("BANK: Selecting 'withdraw all'")
+
+        # Click withdraw all
+        event = Event([
+            (Event.click(session.translate(grabber.BANK_WITHDRAW_ALL.random_point())), (.5, 1))
+        ])
+
+        session.publish_event(event)
 
 
 def options_select_x(session):

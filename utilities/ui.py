@@ -19,7 +19,7 @@ DRAG_DURATION_MAX = 1.3
 BAR_TAB_HEIGHT = 38
 
 # Images
-INVENTORY_ICON_ACTIVE = "bot_ref_imgs/quad_1080/ui/inv_icon_active.png"
+INVENTORY_ICON_ACTIVE = "bot_ref_imgs/ui/inv_icon_active.png"
 
 
 def open_tab(session, side, item):

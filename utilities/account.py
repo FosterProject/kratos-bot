@@ -18,10 +18,10 @@ from utilities import ui
 EM = EventManager.get_instance()
 
 # Images
-LOGOUT_CHECK = "bot_ref_imgs/quad_1080/account/logout_check.png"
-TAP_TO_PLAY = "bot_ref_imgs/quad_1080/account/tap_to_play.png"
-CONNECTING_CHECK = "bot_ref_imgs/quad_1080/account/connecting_check.png"
-LOGOUT_INACTIVE = "bot_ref_imgs/quad_1080/account/logout_inactive.png"
+LOGOUT_CHECK = "bot_ref_imgs/account/logout_check.png"
+TAP_TO_PLAY = "bot_ref_imgs/account/tap_to_play.png"
+CONNECTING_CHECK = "bot_ref_imgs/account/connecting_check.png"
+LOGOUT_INACTIVE = "bot_ref_imgs/account/logout_inactive.png"
 
 
 def is_logged_out(session):

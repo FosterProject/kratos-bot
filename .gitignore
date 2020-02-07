@@ -3,6 +3,7 @@ __pycache__
 bin
 ckpt
 built_graph
+brain_*
 flow
 debug
 

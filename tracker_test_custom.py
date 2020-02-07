@@ -17,9 +17,11 @@ from tools.session import Session
 
 # Load in TFNet
 TFNET_OPTIONS = {
-    "pbLoad": "built_graph/yolo-kratos.pb",
-    "metaLoad": "built_graph/yolo-kratos.meta",
-    "labels": "./classes.txt",
+    "model": "cfg/yolo-kratos.cfg",
+    "load": -1,
+    # "pbLoad": "built_graph/yolo-kratos.pb",
+    # "metaLoad": "built_graph/yolo-kratos.meta",
+    "labels": "./labels.txt",
     "threshold": 0.1
 }
 TF_NET = TFNet(TFNET_OPTIONS)
@@ -84,7 +86,7 @@ print("Tracker Count: %s" % len(trackers))
 print("Starting stream...")
 refresh_tracker_timer = time.time()
 while True:
-    if time.time() - refresh_tracker_timer > 7:
+    if time.time() - refresh_tracker_timer > 2:
         print("Refreshing tracker...")
         refresh_tracker_timer = time.time()
         trackers, tracker_colours = initialise_trackers(session)

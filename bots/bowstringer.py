@@ -49,7 +49,7 @@ class Bowstringer:
     
     # Bot startup actions
     def startup(self):
-        debug("Kratos-Bot >> Running bot startup...")
+        debug("Kratos-Bot >> Running Bowstringer startup...")
         # Login
         account.login(self.session)
         wait(2, 3)

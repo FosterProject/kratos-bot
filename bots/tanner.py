@@ -18,11 +18,17 @@ from utilities import ui
 from utilities import bank
 from utilities import inventory
 from utilities.items import Item
+from utilities.movement import Movement
 
 # Image References
-UNTANNED_HIDE = "bot_ref_imgs/tanner/cowhide.png"
+UNTANNED_HIDE = "bot_ref_imgs/tanner/cowhide_short.png"
 TANNED_HIDE = "bot_ref_imgs/tanner/hard_leather.png"
 CASH_STACK_BANK = "bot_ref_imgs/tanner/cash_stack_bank.png"
+
+# Movement Images
+MOVEMENT_PATH = [
+
+]
 
 # Constants
 
@@ -30,6 +36,10 @@ CASH_STACK_BANK = "bot_ref_imgs/tanner/cash_stack_bank.png"
 class Tanner:
     def __init__(self, session):
         self.session = session
+
+        # Movement
+        self.tanner_route = Movement(session, MOVEMENT_PATH)
+        self.bank_route = Movement(session, MOVEMENT_PATH, True)
 
         # Login timers
         self.min_login_time = 15 * 60
@@ -63,9 +73,9 @@ class Tanner:
             sys.exit()
 
         # Open bank and empty inventory
-        self.bank_hides()
+        self.bank_inventory()
 
-        # Toggle select x
+        # Toggle select all
         bank.options_select_all(self.session)
 
         # Setup login timers
@@ -100,15 +110,17 @@ class Tanner:
             # Publish this current event and wait for processing
             self.session.publish_event(event)
 
-
             # Move to tanner
+            self.move(self.tanner_route)
 
             # Find tanner and tan hides
+            self.tan_hides()
 
             # Move to bank
+            self.move(self.bank_route)
 
             # Bank inventory
-            self.bank_hides()
+            self.bank_inventory()
 
             # Check if we need to log out
             if self.session.should_log_out():
@@ -126,7 +138,29 @@ class Tanner:
                 self.startup()
 
 
-    def bank_hides(self):
+    def tan_hides(self):
+        # Find tanner
+        # Click on tanner
+        # Click on trade with tanner
+        # Click on leather portion
+        # Click on 'all' on leather portion
+        # Click on x?
+        
+
+
+    def move(self, route):
+        while not route.finished:
+            step_pos = route.step()
+            self.session.publish_event(Event([
+                (Event.click(step_pos), (.2, .5))
+            ]))
+            while route.is_moving:
+                route.check_is_moving()
+                wait(.2, .5)
+        route.reset()
+
+
+    def bank_inventory(self):
         event = Event()
 
         # Open bank
@@ -135,9 +169,8 @@ class Tanner:
             event.add_action(Event.click(booth_pos), (1.5, 2.5))
 
         # Empty inventory
-        rand_inv_slot = random.randint(1, 27)
-        hide_inventory_pos = self.session.translate(inventory.INVENTORY_POSITIONS[rand_inv_slot].random_point())
-        event.add_action(Event.click(hide_inventory_pos), (.5, 1))
+        bank_inventory_pos = bank.bank_inventory(self.session)
+        event.add_action(Event.click(bank_inventory_pos), (.5, 1))
 
         # Publish actions
         self.session.publish_event(event)

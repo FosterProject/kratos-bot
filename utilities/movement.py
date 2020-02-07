@@ -15,11 +15,82 @@ MOVEMENT_IDLE_START_TIME = None
 MOVEMENT_IDLE_MAX = 1.8
 LAST_MAP = grabber.grab_region("", grabber.MAP).convert("L")
 
+# Image References
+MOVEMENT_FLAG = "bot_ref_imgs/movement/movement_flag.png"
 
 class Step:
     def __init__(self, path, weight):
         self.path = path
         self.weight = weight
+
+
+class Movement:
+    def __init(self, session, steps, reverse):
+        self.session = session
+        self.steps = steps if reverse is False else steps.reverse()
+        self.current_step = 0
+        self.finished = False
+
+        self.is_moving = False
+
+
+    def step(self):
+        step = self.steps[self.current_step]
+        if isinstance(step, list):
+            for step_obj in step:
+                step_pos = self.session.find_in_region(grabber.MAP, step_obj.path)
+                if step_pos is not None:
+                    break
+        else:
+            step_pos = self.session.find_in_region(grabber.MAP, step.path)
+
+        # Set current step to next step
+        self.current_step += 1
+        if self.current_step == len(self.steps):
+            self.finished = True
+        
+        self.is_moving = True
+        return step_pos
+    
+
+    def check_is_moving(self):
+        find_flag = self.session.find_in_region(grabber.MAP, MOVEMENT_FLAG)
+        if find_flag is None:
+            self.is_moving = False
+
+
+    def reset(self):
+        self.current_step = 0
+        self.finished = False
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 STEPS = [
     Step("bot_ref_imgs/movement/0.png", 0),

@@ -1,16 +1,23 @@
+# Base imports
 import sys
 import time
 import random
 
-# Base session
-from tools.session import Session
+# Darkflow
+import matplotlib.pyplot as plt
+from darkflow.net.build import TFNet
+import cv2
+import numpy as np
 
 # Libraries
-from tools import bot
+from tools import osrs_screen_grab as grabber
+from tools import image_lib as imlib
 from tools.lib import wait
 from tools.lib import debug
 from tools.lib import error
-from tools.event_manager import EventManager, Event
+from tools.lib import translate_predictions
+from tools.event_manager import Event
+from tools.screen_pos import Box, Pos
 
 # Utilities
 from utilities import account
@@ -20,26 +27,49 @@ from utilities import inventory
 from utilities.items import Item
 from utilities.movement import Movement
 
+
 # Image References
-UNTANNED_HIDE = "bot_ref_imgs/tanner/cowhide_short.png"
-TANNED_HIDE = "bot_ref_imgs/tanner/hard_leather.png"
-CASH_STACK_BANK = "bot_ref_imgs/tanner/cash_stack_bank.png"
+UNTANNED_HIDE = Item("bot_ref_imgs/tanner/cowhide_short.png", .3)
+TANNED_HIDE = Item("bot_ref_imgs/tanner/hard_leather.png", .3)
+CASH_STACK_BANK = Item("bot_ref_imgs/tanner/cash_stack_bank.png", .3)
+
+TRADE_WITH_TANNER = "bot_ref_imgs/tanner/trade_ellis.png"
+TAN_ALL = "bot_ref_imgs/tanner/tan_all_smaller.png"
+TANNER_OPEN = "bot_ref_imgs/tanner/tanner_open.png"
 
 # Movement Images
-MOVEMENT_PATH = [
-
+MOVEMENT_TANNER_PATH = [
+    "bot_ref_imgs/tanner/movement/1.png",
+    "bot_ref_imgs/tanner/movement/2.png"
+]
+MOVEMENT_BANK_PATH = [
+    "bot_ref_imgs/tanner/movement/1.png",
+    "bot_ref_imgs/tanner/movement/0.png"   
 ]
 
-# Constants
+# Positions (Unique to bot so not in grabber)
+TANNING_INTERFACE = Box(Pos(124, 163), Pos(585, 447))
+TAN_SOFT_LEATHER = Box(Pos(183, 227), Pos(215, 255))
+
+
+# Load Darkflow
+TFNET_OPTIONS = {
+    "pbLoad": "brain_tanner/yolo-kratos.pb",
+    "metaLoad": "brain_tanner/yolo-kratos.meta",
+    "labels": "./labels.txt",
+    "threshold": 0.1
+}
+TF_NET = TFNet(TFNET_OPTIONS)
 
 
 class Tanner:
-    def __init__(self, session):
+    def __init__(self, session, target_leather):
         self.session = session
+        self.target_leather = target_leather
 
         # Movement
-        self.tanner_route = Movement(session, MOVEMENT_PATH)
-        self.bank_route = Movement(session, MOVEMENT_PATH, True)
+        self.tanner_route = Movement(session, MOVEMENT_TANNER_PATH)
+        self.bank_route = Movement(session, MOVEMENT_BANK_PATH)
 
         # Login timers
         self.min_login_time = 15 * 60
@@ -68,7 +98,7 @@ class Tanner:
         ]))
 
         # At bank check
-        if bank.find_booth(self.session) is None:
+        if bank.find_booth(self.session, "EAST") is None:
             print("Kratos-Bot >> Please start this bot in Al Kharid bank")
             sys.exit()
 
@@ -113,8 +143,24 @@ class Tanner:
             # Move to tanner
             self.move(self.tanner_route)
 
+            # Enable two-step click
+            event = Event()
+            event.add_action(Event.click(ui.click_tap_option(self.session)), (.5, .8))
+
+            # Click compass
+            compass_pos = ui.click_compass(self.session)
+            event.add_action(Event.click(compass_pos), (.5, .8))
+            
+            self.session.publish_event(event)
+
             # Find tanner and tan hides
             self.tan_hides()
+
+            # Disable two-step click
+            self.session.publish_event(Event([
+                (Event.click(ui.click_tap_option(self.session)), (.4, .8)),
+                (Event.click(ui.click_compass(self.session)), (.5, .8))
+            ]))
 
             # Move to bank
             self.move(self.bank_route)
@@ -138,16 +184,6 @@ class Tanner:
                 self.startup()
 
 
-    def tan_hides(self):
-        # Find tanner
-        # Click on tanner
-        # Click on trade with tanner
-        # Click on leather portion
-        # Click on 'all' on leather portion
-        # Click on x?
-        
-
-
     def move(self, route):
         while not route.finished:
             step_pos = route.step()
@@ -161,24 +197,22 @@ class Tanner:
 
 
     def bank_inventory(self):
-        event = Event()
-
         # Open bank
         if not bank.is_bank_open(self.session):
-            booth_pos = bank.open(self.session)
-            event.add_action(Event.click(booth_pos), (1.5, 2.5))
+            booth_pos = bank.open(self.session, "EAST")
+            self.session.publish_event(Event([
+                (Event.click(booth_pos), (.5, .8))
+            ]))
+
+        while not bank.is_bank_open(self.session):
+            print("Waiting to open the bank")
+            wait(.5, 1)
 
         # Empty inventory
         bank_inventory_pos = bank.bank_inventory(self.session)
-        event.add_action(Event.click(bank_inventory_pos), (.5, 1))
-
-        # Publish actions
-        self.session.publish_event(event)
-
-
-    def withdraw_cash_stack(self):
-        # TODO: Implement this function
-        pass
+        self.session.publish_event(Event([
+            (Event.click(bank_inventory_pos), (.5, .8))
+        ]))
 
 
     def withdraw_resources(self, event):
@@ -197,3 +231,61 @@ class Tanner:
             self.session.publish_event(Event([
                 (Event.click(compass_pos))
             ]))
+
+
+    def tan_hides(self):
+        # Click on trade with tanner
+        trade_pos = None
+        while trade_pos is None:
+            # Find tanner
+            tanner_pos = self.find_tanner()
+
+            # Click on tanner
+            self.session.publish_event(Event([
+                (Event.click(tanner_pos), (.2, .4))
+            ]))
+            trade_pos = self.session.find_in_client(TRADE_WITH_TANNER)
+        self.session.publish_event(Event([
+            (Event.click(trade_pos), (.5, .8))
+        ]))
+
+        while self.session.find_in_client(TANNER_OPEN) is None:
+            debug("Tanner - tan_hides: Waiting for tanner menu to open")
+            wait(.5, 1)
+
+        # Click on leather portion
+        self.session.publish_event(Event([
+            (Event.click(self.session.translate(self.target_leather.random_point())), (.5, .8))
+        ]))
+
+        # Click on 'all' on leather portion
+        tan_all_pos = self.session.set_client_threshold(0.6).find_in_client(TAN_ALL)
+        if trade_pos is None:
+            error("failed to find the 'tan all' menu item so the bot is exiting. Should add a failure routine to try again...")
+            self.session.exit()
+            return
+        self.session.publish_event(Event([
+            (Event.click(tan_all_pos), (.2, .5))
+        ]))
+
+
+    def find_tanner(self):
+        tanner_pos = None
+        while tanner_pos is None:
+            frame = np.array(imlib.rescale_obj(grabber.grab(self.session.screen_bounds)))
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            # Find tanner
+            debug("Predicting...")
+            predictions = TF_NET.return_predict(frame)
+            bboxes = translate_predictions(predictions, return_as_box=True)
+            print(bboxes)
+            if len(bboxes) > 0:
+                tanner_pos = self.session.translate(bboxes[0].random_point())
+            else:
+                # Spin camera
+                self.session.publish_event(Event([
+                    (Event.drag(*ui.spin_around(self.session)), (.1, .2))
+                ]))
+
+        return tanner_pos

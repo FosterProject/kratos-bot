@@ -34,6 +34,10 @@ def open_tab(session, side, item):
     return session.translate(tab_bounds.random_point())
 
 
+def click_tap_option(session):
+    return session.translate(grabber.TAP_OPTION.random_point())
+
+
 def is_inventory_open(session):
     check = session.find_in_client(INVENTORY_ICON_ACTIVE)
     return check is not None
@@ -71,12 +75,7 @@ def spin_around(session):
         y_start + y_bound
     )
 
-    # Reverse direction half the time
     start = session.translate(Pos(x_start, y_start))
     end = session.translate(Pos(x_end, y_end))
-    # if random.randint(1, 2) == 2:
-    #     x = start
-    #     start = end
-        # end = x
-    bot.drag(start, end, round(random.uniform(DRAG_DURATION_MIN, DRAG_DURATION_MAX), 2))
 
+    return (start, end, round(random.uniform(DRAG_DURATION_MIN, DRAG_DURATION_MAX), 2))

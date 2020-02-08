@@ -31,7 +31,7 @@ TRANSLATION_DIST = ((config.SCREEN_HEIGHT / 2) - (config.SCREEN_HEIGHT / 15))
 TRANSLATION_TOPLEFT = Pos(
     (config.SCREEN_WIDTH / 2) - TRANSLATION_DIST,
     (config.SCREEN_HEIGHT / 2) - TRANSLATION_DIST
-    )
+)
 
 # Analysis Threshold
 THRESHOLD = 0.8

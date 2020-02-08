@@ -1,39 +1,8 @@
-
-# from tools.event_manager import EventManager, Event
-# from tools.screen_pos import Pos
-# from tools.session import Session
-# from tools import config
-# config.DEBUG = True
-
-# session = Session(0, 0)
-# print("Session - has_pending_event: %s" % session.has_pending_event)
-
-# em = EventManager()
-# event = Event([(Event.click(Pos(150, 150)), (3, 5))])
-# print(event.actions)
-# # event.add_action(event.click(Pos(150, 150)), (3, 5))
-# em.add_event(session, event)
-# em.add_event(session, event)
-
-# print("Session - has_pending_event: %s" % session.has_pending_event)
-
-# em.process_event()
-
-# print("Session - has_pending_event: %s" % session.has_pending_event)
-
-
-
-
-
-
-
-
-
-
-
 from tools.session import Session
 from tools import osrs_screen_grab as grabber
 from tools.screen_pos import Pos, Box
+from tools import image_lib as imlib
+from tools.lib import translate_predictions
 from tools import config
 config.DEBUG = True
 import pyautogui as bot
@@ -46,13 +15,20 @@ from utilities import ui
 from utilities import inventory
 from utilities import bank
 
-from tools.event_manager import EventManager, Event
-EM = EventManager.get_instance()
-
-# from bots import mining
-from bots import bowstringer
 
 s = Session(0, 0)
 s2 = Session(0, 1)
 
-account.login(s)
+# from darkflow.net.build import TFNet
+# import cv2
+# import numpy as np
+# TFNET_OPTIONS = {
+#     "pbLoad": "brain_tanner/yolo-kratos.pb",
+#     "metaLoad": "brain_tanner/yolo-kratos.meta",
+#     "labels": "./labels.txt",
+#     "threshold": 0.1
+# }
+# TF_NET = TFNet(TFNET_OPTIONS)
+
+x = ui.click_tap_option(s)
+bot.moveTo(x.x, x.y)

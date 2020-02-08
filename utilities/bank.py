@@ -17,13 +17,22 @@ from tools.lib import file_name
 from tools.event_manager import Event
 
 # Reference Images
-BANK_BOOTH = [
-    # "bot_ref_imgs/bank/bank_booth_1.png",
-    # "bot_ref_imgs/bank/bank_booth_2.png",
-    # "bot_ref_imgs/bank/bank_booth_3.png",
-    # "bot_ref_imgs/bank/bank_booth_4.png",
-    "bot_ref_imgs/bank/bank_booth_5.png"
-]
+BANK_BOOTH = {
+    "NORTH": [
+        # "bot_ref_imgs/bank/north_bank_booth_1.png",
+        # "bot_ref_imgs/bank/north_bank_booth_2.png",
+        # "bot_ref_imgs/bank/north_bank_booth_3.png",
+        # "bot_ref_imgs/bank/north_bank_booth_4.png",
+        "bot_ref_imgs/bank/north_bank_booth_5.png"
+    ],
+    "EAST": [
+        "bot_ref_imgs/bank/east_bank_booth_1.png",
+        "bot_ref_imgs/bank/east_bank_booth_2.png",
+        "bot_ref_imgs/bank/east_bank_booth_3.png",
+        "bot_ref_imgs/bank/east_bank_booth_4.png",
+        "bot_ref_imgs/bank/east_bank_booth_5.png"
+    ]
+}
 WITHDRAW_ALL_INACTIVE = "bot_ref_imgs/bank/withdraw_all_inactive.png"
 WITHDRAW_X_INACTIVE = "bot_ref_imgs/bank/withdraw_x_inactive.png"
 WITHDRAW_X_AMOUNT = "bot_ref_imgs/bank/withdraw_x_amount.png"
@@ -117,13 +126,13 @@ def is_bank_open(session):
     return check is not None
 
 
-def find_booth(session):
+def find_booth(session, facing="NORTH"):
     booth_found = False
-    for booth in BANK_BOOTH:
-       check = session.find_in_client(booth)
-       if check is not None:
-           booth_found = True
-           break
+    for booth in BANK_BOOTH[facing]:
+        check = session.find_in_client(booth)
+        if check is not None:
+            booth_found = True
+            break
            
     if not booth_found:
         debug("BANK - find_booth: Couldn't find bank booth in client")
@@ -139,8 +148,8 @@ def close(session):
     return None
 
 
-def open(session):
-    booth_pos = find_booth(session)
+def open(session, facing="NORTH"):
+    booth_pos = find_booth(session, facing)
     if booth_pos is None:
         debug("BANK - open: Couldn't open the bank. Script is exiting because you're not in a bank.")
         sys.exit()

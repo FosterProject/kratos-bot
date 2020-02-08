@@ -17,10 +17,10 @@ from tools.session import Session
 
 # Load in TFNet
 TFNET_OPTIONS = {
-    "model": "cfg/yolo-kratos.cfg",
-    "load": -1,
-    # "pbLoad": "built_graph/yolo-kratos.pb",
-    # "metaLoad": "built_graph/yolo-kratos.meta",
+    # "model": "cfg/yolo-kratos.cfg",
+    # "load": -1,
+    "pbLoad": "brain_tanner/yolo-kratos.pb",
+    "metaLoad": "brain_tanner/yolo-kratos.meta",
     "labels": "./labels.txt",
     "threshold": 0.1
 }
@@ -50,10 +50,12 @@ def translate_predictions_to_bbox(rocks):
 
 def initialise_trackers(session):
     # Read in first frame
-    img_path = grabber.grab(session.screen_bounds, None, file_name="stream", save=True)
-    imlib.rescale(img_path).save("stream.png")
-    frame = cv2.imread("stream.png")
-    # frame = np.array(imlib.rescale_obj(grabber.grab(session.screen_bounds)))
+    # img_path = grabber.grab(session.screen_bounds, None, file_name="stream", save=True)
+    # imlib.rescale(img_path).save("stream.png")
+    # frame = cv2.imread("stream.png")
+    frame = np.array(imlib.rescale_obj(grabber.grab(session.screen_bounds)))
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    # cv2.imwrite('debug/test.png', frame)
 
     # Get bbox using TFNet
     print("> Initial predictions...")
@@ -93,6 +95,7 @@ while True:
     
     # Get next frame
     frame = np.array(imlib.rescale_obj(grabber.grab(session.screen_bounds)))
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     # Update tracker
     # print("> Updating trackers...")

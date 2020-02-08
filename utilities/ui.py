@@ -19,7 +19,7 @@ DRAG_DURATION_MAX = 1.3
 BAR_TAB_HEIGHT = 38
 
 # Images
-INVENTORY_ICON_ACTIVE = "bot_ref_imgs/quad_1080/ui/inv_icon_active.png"
+INVENTORY_ICON_ACTIVE = "bot_ref_imgs/ui/inv_icon_active.png"
 
 
 def open_tab(session, side, item):
@@ -32,6 +32,10 @@ def open_tab(session, side, item):
     tab_bounds.shift_y(item * BAR_TAB_HEIGHT)
 
     return session.translate(tab_bounds.random_point())
+
+
+def click_tap_option(session):
+    return session.translate(grabber.TAP_OPTION.random_point())
 
 
 def is_inventory_open(session):
@@ -71,12 +75,7 @@ def spin_around(session):
         y_start + y_bound
     )
 
-    # Reverse direction half the time
     start = session.translate(Pos(x_start, y_start))
     end = session.translate(Pos(x_end, y_end))
-    # if random.randint(1, 2) == 2:
-    #     x = start
-    #     start = end
-        # end = x
-    bot.drag(start, end, round(random.uniform(DRAG_DURATION_MIN, DRAG_DURATION_MAX), 2))
 
+    return (start, end, round(random.uniform(DRAG_DURATION_MIN, DRAG_DURATION_MAX), 2))

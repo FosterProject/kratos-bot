@@ -1,8 +1,6 @@
 import random
 import copy
 
-from tools.lib import debug
-
 class Pos:
     def __init__(self, x, y):
         self.x = x

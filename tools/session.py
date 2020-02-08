@@ -110,6 +110,10 @@ class Session:
         self.reset_region_threshold()
         maxpos = cv2.minMaxLoc(res)[3]
 
+        if config.DEBUG:
+            cv2.rectangle(_, maxpos, (maxpos[0] + w, maxpos[1] + h), (25, 0, 255), 1)
+            cv2.imwrite('debug/client%s%s/region_%s.png' % (self.row, self.col, file_name(item_ref)), _)
+
         return self.translate(Box(
             Pos(*maxpos),
             Pos(maxpos[0] + w, maxpos[1] + h)
@@ -124,9 +128,37 @@ class Session:
         w, h = template.shape[::-1]
 
         res = cv2.matchTemplate(screen, template, cv2.TM_CCOEFF_NORMED)
+        maxpos = cv2.minMaxLoc(res)
+        if maxpos[1] < self.client_threshold:
+            cv2.imwrite('debug/client%s%s/fail_client_%s.png' % (self.row, self.col, file_name(item_ref)), _)
+            debug("CLIENT_SEARCH_ERROR: %s" % item_ref)
+            return None
+
+        self.reset_client_threshold()
+        maxpos = cv2.minMaxLoc(res)[3]
+
+        if config.DEBUG:
+            cv2.rectangle(_, maxpos, (maxpos[0] + w, maxpos[1] + h), (25, 0, 255), 1)
+            cv2.imwrite('debug/client%s%s/client_%s.png' % (self.row, self.col, file_name(item_ref)), _)
+        
+        return self.translate(Box(
+            Pos(*maxpos),
+            Pos(maxpos[0] + w, maxpos[1] + h)
+        ).random_point())
+
+
+    def find_in_client2(self, item_ref):
+        screen = grabber.grab(self.screen_bounds)
+        _ = np.array(screen)
+        screen = np.array(screen.convert("L"))
+        template = cv2.imread(item_ref, 0)
+        w, h = template.shape[::-1]
+
+        res = cv2.matchTemplate(screen, template, cv2.TM_CCOEFF_NORMED)
         loc = np.where(res >= self.client_threshold)
         self.reset_client_threshold()
         if len(list(zip(*loc[::-1]))) < 1:
+            cv2.imwrite('debug/client%s%s/fail_screen_%s.png' % (self.row, self.col, item_ref.split("/")[-1].split(".")[0]), _)
             debug("CLIENT_SEARCH_ERROR: %s" % item_ref)
             return None
 

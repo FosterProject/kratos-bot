@@ -20,11 +20,11 @@ from utilities import inventory
 from utilities.items import Item
 
 # Image References
-BOWSTRING = Item("bot_ref_imgs/quad_1080/fletching/bowstring.png", 0.32)
-BOWSTRING_SHORT = Item("bot_ref_imgs/quad_1080/fletching/bowstring_short.png", 0.32)
-UNSTRUNG = Item("bot_ref_imgs/quad_1080/fletching/yew_unstrung.png", 0.33)
-UNSTRUNG_SHORT = Item("bot_ref_imgs/quad_1080/fletching/yew_unstrung_short.png", 0.33)
-LONGBOW = Item("bot_ref_imgs/quad_1080/fletching/yew_longbow.png")
+BOWSTRING = Item("bot_ref_imgs/fletching/bowstring.png", 0.32)
+BOWSTRING_SHORT = Item("bot_ref_imgs/fletching/bowstring_short.png", 0.32)
+UNSTRUNG = Item("bot_ref_imgs/fletching/yew_unstrung.png", 0.33)
+UNSTRUNG_SHORT = Item("bot_ref_imgs/fletching/yew_unstrung_short.png", 0.33)
+LONGBOW = Item("bot_ref_imgs/fletching/yew_longbow.png")
 
 # Constants
 STRINGING_TIME = 18
@@ -67,9 +67,10 @@ class Bowstringer:
         
         # Open inventory
         open_inventory_pos = ui.open_inventory(self.session)
-        self.session.publish_event(Event([
-            (Event.click(open_inventory_pos), (.5, 1))
-        ]))
+        if open_inventory_pos is not None:
+            self.session.publish_event(Event([
+                (Event.click(open_inventory_pos), (.5, 1))
+            ]))
 
         # Open bank and empty inventory
         self.bank_inventory()

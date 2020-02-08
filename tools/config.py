@@ -1,3 +1,5 @@
+from tools.screen_pos import Pos
+
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
 
@@ -10,6 +12,7 @@ PADDING_BOTTOM = 2
 # Game client
 GAME_WIDTH = 846
 GAME_HEIGHT = 476
+
 
 # Darkflow rescaling
 SCALE_WIDTH = 480

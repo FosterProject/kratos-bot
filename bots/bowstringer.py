@@ -67,9 +67,10 @@ class Bowstringer:
         
         # Open inventory
         open_inventory_pos = ui.open_inventory(self.session)
-        self.session.publish_event(Event([
-            (Event.click(open_inventory_pos), (.5, 1))
-        ]))
+        if open_inventory_pos is not None:
+            self.session.publish_event(Event([
+                (Event.click(open_inventory_pos), (.5, 1))
+            ]))
 
         # Open bank and empty inventory
         self.bank_inventory()

@@ -30,5 +30,5 @@ s2 = Session(0, 1)
 # }
 # TF_NET = TFNet(TFNET_OPTIONS)
 
-x = ui.click_tap_option(s)
+x = ui.open_inventory(s2)
 bot.moveTo(x.x, x.y)

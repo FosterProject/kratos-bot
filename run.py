@@ -23,7 +23,7 @@ from bots import bowstringer
 from bots import tanner
 bots = [
     {"bot": bowstringer.Bowstringer(s2), "thread": None},
-    {"bot": tanner.Tanner(s, tanner.TAN_SOFT_LEATHER), "thread": None}
+    # {"bot": tanner.Tanner(s, tanner.TAN_SOFT_LEATHER), "thread": None}
 ]
 
 # Run bots
@@ -31,7 +31,6 @@ for bot in bots:
     thread = threading.Thread(target=bot["bot"].run)
     bot["thread"] = thread
     thread.start()
-    
 
 try:
     while True:

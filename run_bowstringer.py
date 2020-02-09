@@ -14,7 +14,7 @@ from tools.event_manager import EventManager
 EM = EventManager.get_instance()
 
 # Sessions
-s = Session(0, 1)
+s = Session(0, 0)
 
 
 # Define bots

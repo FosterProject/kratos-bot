@@ -34,7 +34,10 @@ from utilities.movement import Movement
 PICKAXE = Item("bot_ref_imgs/mining/pickaxe_mithril.png", .3)
 
 # UI
-MINING_SUCCESS = "bot_ref_imgs/mining/copper_success.png"
+MINING_SUCCESS = [
+    "bot_ref_imgs/mining/copper_success.png",
+    "bot_ref_imgs/mining/iron_success.png"
+]
 MINING_START = "bot_ref_imgs/mining/mining_start.png"
 NO_ORE_AVAILABLE = "bot_ref_imgs/mining/no_ore_available.png"
 
@@ -292,11 +295,17 @@ class Mining:
 
             # Check mining success
             mining_timer = time.time()
-            while self.session.set_region_threshold(0.6).find_in_region(grabber.CHAT_LAST_LINE, MINING_SUCCESS) is None:
+            mining_success = None
+            while mining_success is None:
                 print("looking for success")
                 if time.time() - mining_timer >= MINING_WAIT_FOR_SUCCESS_MAX:
                     print("ran out of time, moving to new rock")
                     break
+                for check in MINING_SUCCESS:
+                    if self.session.set_region_threshold(0.6).find_in_region(grabber.CHAT_LAST_LINE, check) is not None:
+                        mining_success = True
+                        break
+
                 wait(.4, .6)
 
 

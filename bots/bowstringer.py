@@ -150,10 +150,11 @@ class Bowstringer:
     def bank_inventory(self):
         # Open bank
         if not bank.is_bank_open(self.session):
-            booth_pos = bank.open(self.session)
-            self.session.publish_event([
+            print("CLICKING BANK")
+            booth_pos = bank.open(self.session, "NORTH")
+            self.session.publish_event(Event([
                 (Event.click(booth_pos), (1.5, 2.5))
-            ])
+            ]))
 
         while not bank.is_bank_open(self.session):
             print("Waiting to open the bank")

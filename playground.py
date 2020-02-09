@@ -20,6 +20,8 @@ from utilities import bank
 s = Session(0, 0)
 s2 = Session(0, 1)
 
+# screen = grabber.grab(s.screen_bounds, grabber.CHAT_LAST_LINE, "debug/test.png", True)
+
 # from darkflow.net.build import TFNet
 # import cv2
 # import numpy as np
@@ -32,6 +34,7 @@ s2 = Session(0, 1)
 # TF_NET = TFNet(TFNET_OPTIONS)
 
 
-# x = s.set_region_threshold(0.6).find_in_region(grabber.CHAT_LAST_LINE, "bot_ref_imgs/mining/mining_start.png")
-screen = grabber.grab(s.screen_bounds, grabber.CHAT_LAST_LINE, "debug/test.png", True)
-# print(x)
+x = bank.is_bank_open(s2)
+if not bank.is_bank_open(s2):
+    booth_pos = bank.open(s2, "NORTH")
+    bot.click(booth_pos.x, booth_pos.y)

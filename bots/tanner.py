@@ -33,7 +33,7 @@ UNTANNED_HIDE = Item("bot_ref_imgs/tanner/cowhide_short.png", .3)
 TANNED_HIDE = Item("bot_ref_imgs/tanner/hard_leather.png", .3)
 CASH_STACK_BANK = Item("bot_ref_imgs/tanner/cash_stack_bank.png", .3)
 
-UNTANNED_HIDE_EMPTY = Item("bot_ref_imgs/tanner/cowhide_empty.png", .3)
+UNTANNED_HIDE_EMPTY = "bot_ref_imgs/tanner/cowhide_empty.png"
 
 TRADE_WITH_TANNER = "bot_ref_imgs/tanner/trade_ellis.png"
 TAN_ALL = "bot_ref_imgs/tanner/tan_all_smaller.png"
@@ -205,7 +205,7 @@ class Tanner:
         if not bank.is_bank_open(self.session):
             booth_pos = bank.open(self.session, "EAST")
             self.session.publish_event(Event([
-                (Event.click(booth_pos), (.5, .8))
+                (Event.click(booth_pos), (.9, 1.1))
             ]))
 
         while not bank.is_bank_open(self.session):

@@ -35,6 +35,4 @@ s2 = Session(0, 1)
 
 
 x = bank.is_bank_open(s2)
-if not bank.is_bank_open(s2):
-    booth_pos = bank.open(s2, "NORTH")
-    bot.click(booth_pos.x, booth_pos.y)
+print(x)

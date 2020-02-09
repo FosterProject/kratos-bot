@@ -33,7 +33,10 @@ BANK_BOOTH = {
         "bot_ref_imgs/bank/east_bank_booth_2.png",
         "bot_ref_imgs/bank/east_bank_booth_3.png",
         "bot_ref_imgs/bank/east_bank_booth_4.png",
-        "bot_ref_imgs/bank/east_bank_booth_5.png"
+        "bot_ref_imgs/bank/east_bank_booth_5.png",
+        "bot_ref_imgs/bank/east_bank_booth_6.png",
+        "bot_ref_imgs/bank/east_bank_booth_7.png",
+        "bot_ref_imgs/bank/east_bank_booth_8.png"
     ]
 }
 WITHDRAW_ALL_INACTIVE = "bot_ref_imgs/bank/withdraw_all_inactive.png"
@@ -125,7 +128,7 @@ def withdraw_item(session, item):
 
 
 def is_bank_open(session):
-    check = session.find_in_region(grabber.BANK, IS_BANK_OPEN)
+    check = session.set_region_threshold(0.6).find_in_region(grabber.BANK, IS_BANK_OPEN)
     return check is not None
 
 

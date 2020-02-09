@@ -11,13 +11,13 @@ import numpy as np
 
 # Libraries
 from tools import config
-config.DEBUG = False
+config.DEBUG = True
 from tools import osrs_screen_grab as grabber
 from tools import image_lib as imlib
 from tools.lib import wait
 from tools.lib import debug
 from tools.lib import error
-from tools.lib import translate_predictions
+from tools.lib import translate_predictions, translate_tracker
 from tools.event_manager import Event
 from tools.screen_pos import Box, Pos
 
@@ -34,6 +34,9 @@ from utilities.movement import Movement
 PICKAXE = Item("bot_ref_imgs/mining/pickaxe_mithril.png", .3)
 
 # UI
+MINING_SUCCESS = "bot_ref_imgs/mining/copper_success.png"
+MINING_START = "bot_ref_imgs/mining/mining_start.png"
+NO_ORE_AVAILABLE = "bot_ref_imgs/mining/no_ore_available.png"
 
 # Movement Images
 MOVEMENT_MINE_PATH = [
@@ -66,6 +69,9 @@ MOVEMENT_BANK_PATH = [
 
 # Positions (Unique to bot so not in grabber)
 
+# Constants
+MINING_WAIT_FOR_SUCCESS_MAX = 5
+MINING_WAIT_FOR_START_MAX = 3
 
 # Load Darkflow
 TFNET_OPTIONS = {
@@ -127,7 +133,7 @@ class Mining:
     # Run bot
     def run(self):
         debug("Kratos-Bot >> Running startup routine")
-        # self.startup()
+        self.startup()
 
         debug("Kratos-Bot >> Starting main bot loop")
 
@@ -137,11 +143,11 @@ class Mining:
                 break
 
             # Click compass
-            # compass_pos = ui.click_compass(self.session)
-            # self.session.publish_event(Event([(Event.click(compass_pos), (.5, .8))]))
+            compass_pos = ui.click_compass(self.session)
+            self.session.publish_event(Event([(Event.click(compass_pos), (.5, .8))]))
 
             # Move to mine
-            # self.move(self.mining_route)
+            self.move(self.mining_route)
 
             # Click compass
             compass_pos = ui.click_compass(self.session)
@@ -213,11 +219,11 @@ class Mining:
 
         # Empty inventory
         bank_inventory_pos = bank.bank_inventory(self.session)
-        event.add_action(Event.click(bank_inventory_pos), (.2, .4))
+        event.add_action(Event.click(bank_inventory_pos), (.8, 1.2))
 
         # Withdraw pickaxe
         pickaxe_pos = bank.withdraw_item(self.session, PICKAXE)
-        event.add_action(Event.click(pickaxe_pos), (.2, .4))
+        event.add_action(Event.click(pickaxe_pos), (.5, .8))
 
         # Close the bank
         bank_close_pos = bank.close(self.session)
@@ -242,9 +248,84 @@ class Mining:
             ]))
 
 
-    def mine_rocks_old(self):
+    # TODO: Check if moved using Movement class. If moved, re-find rocks else just use next rock in list.
+    def mine_rocks(self):
+        while True:
+            inv_full = False
+            no_ore_available = False
+            failed_to_start = False
+
+            rocks = self.find_rocks()
+            rand_rock = rocks[random.randint(0, len(rocks) - 1)]
+            # Mine a rock
+            print("---------- MINING A FRESH ROCK ----------------")
+            self.session.publish_event(Event([
+                (Event.click(self.session.translate(rand_rock.random_point())), (.1, .15))
+            ]))
+
+            # Wait to start mining
+            wait_to_start_timer = time.time()
+            while self.session.set_region_threshold(0.6).find_in_region(grabber.CHAT_LAST_LINE, MINING_START) is None:
+                print("mining start fail")
+                if time.time() - wait_to_start_timer >= MINING_WAIT_FOR_START_MAX:
+                    failed_to_start = True
+                    break
+                # If inventory full
+                if ui.inventory_full(self.session):
+                    inv_full = True
+                    break
+                # No ore
+                if self.session.set_region_threshold(0.6).find_in_region(grabber.CHAT_LAST_LINE, NO_ORE_AVAILABLE) is not None:
+                    no_ore_available = True
+                    
+                wait(.4, .6)
+
+            if failed_to_start:
+                print("Failed to start")
+                continue
+            if inv_full:
+                print("Inventory full")
+                break
+            if no_ore_available:
+                print("No ore available")
+                continue
+
+            # Check mining success
+            mining_timer = time.time()
+            while self.session.set_region_threshold(0.6).find_in_region(grabber.CHAT_LAST_LINE, MINING_SUCCESS) is None:
+                print("looking for success")
+                if time.time() - mining_timer >= MINING_WAIT_FOR_SUCCESS_MAX:
+                    print("ran out of time, moving to new rock")
+                    break
+                wait(.4, .6)
+
+
+    def find_rocks(self):
+        trackers = []
+        while len(trackers) < 1:
+            frame = np.array(imlib.rescale_obj(grabber.grab(self.session.screen_bounds)))
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            # Find rocks
+            debug("Predicting...")
+            predictions = TF_NET.return_predict(frame)
+            bboxes = translate_predictions(predictions, return_as_box=True)
+
+            if len(bboxes) > 0:
+                return bboxes
+            else:
+                # Spin camera
+                self.session.publish_event(Event([
+                    (Event.drag(*ui.spin_around(self.session)), (.1, .2))
+                ]))
+
+
+
+
+
+    # TODO: Come back to this another day, trackers are losing themselves because of low FPS...
+    def mine_rocks_tracker(self):
         rocks = self.find_rocks()
-        print(rocks)
 
         fresh_rock = False
         while not ui.inventory_full(self.session):
@@ -262,11 +343,21 @@ class Mining:
             for i, rock in enumerate(rocks):
                 success, bbox = rock["tracker"].update(frame)
                 rock["alive"] = success
-                rock["box"] = Box(Pos(int(bbox[0]), int(bbox[1])), Pos(int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3])))
+                rock["box"] = Box(
+                    imlib.upscale(Pos(
+                        int(bbox[0]),
+                        int(bbox[1])
+                    )).add(Pos(imlib.left, imlib.upper)),
+                    imlib.upscale(Pos(
+                        int(bbox[0] + bbox[2]),
+                        int(bbox[1] + bbox[3])
+                    )).add(Pos(imlib.left, imlib.upper))
+                )
             
-                # if success and config.DEBUG:
-                #     cv2.rectangle(frame, (rock["box"].tl.x, rock["box"].tl.y), (rock["box"].br.x, rock["box"].br.y), (140, 0, 0), 2, 1)
-                #     cv2.imshow('test', frame)
+                if success:
+                    p1 = (int(bbox[0]), int(bbox[1]))
+                    p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+                    cv2.rectangle(frame, p1, p2, (140, 1, 1), 2, 1)
 
                 if success == True and i != self.current_rock_index:
                     successful_rock_indexes.append(i)
@@ -294,84 +385,15 @@ class Mining:
                 self.session.publish_event(Event([
                     (Event.click(self.session.translate(rocks[self.current_rock_index]["box"].random_point())), (.1, .15))
                 ]))
-            wait(.1, .15)
+            # wait(.1, .15)
+            cv2.imshow('test', frame)
+            if cv2.waitKey(2) & 0xFF == ord('q'):
+                break
 
 
-    def mine_rocks(self):
-        rocks = self.find_rocks()
-        print(rocks)
-
-        is_mining = False
-        current_rock = rocks[0]
-        while not ui.inventory_full(self.session):
-
-            if is_mining:
-                # Update rock
-                frame = np.array(imlib.rescale_obj(grabber.grab(self.session.screen_bounds)))
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                success, bbox = current_rock["tracker"].update(frame)
-                if success == False:
-                    is_mining = False
-                    
-
-
-            if fresh_rock:
-                print("---------- MINING A FRESH ROCK ----------------")
-                fresh_rock = False
-                
-                self.session.publish_event(Event([
-                    (Event.click(self.session.translate(rocks[self.current_rock_index]["box"].random_point())), (.1, .15))
-                ]))
-
-
-            # Refresh trackers every x seconds
-            if time.time() - self.find_rocks_start_time >= self.find_rocks_timer_cap:
-                rocks = self.find_rocks()
-                fresh_rock = True
-
-            # Update trackers
-            successful_rock_indexes = []
-            for i, rock in enumerate(rocks):
-                success, bbox = rock["tracker"].update(frame)
-                rock["alive"] = success
-                rock["box"] = Box(Pos(int(bbox[0]), int(bbox[1])), Pos(int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3])))
-            
-                # if success and config.DEBUG:
-                #     cv2.rectangle(frame, (rock["box"].tl.x, rock["box"].tl.y), (rock["box"].br.x, rock["box"].br.y), (140, 0, 0), 2, 1)
-                #     cv2.imshow('test', frame)
-
-                if success == True and i != self.current_rock_index:
-                    successful_rock_indexes.append(i)
-
-
-            # print("Rocks:")
-            # print(rocks)
-            print("Alive rock count: %s" % len(successful_rock_indexes))
-
-            # Check if need to switch rocks
-            if (self.current_rock_index is None or rocks[self.current_rock_index]["alive"] == False) and len(successful_rock_indexes) > 0:
-                print("----- FRESH ROCK -----")
-                self.current_rock_index = successful_rock_indexes[random.randint(0, len(successful_rock_indexes) - 1)]
-                fresh_rock = True
-
-            print("Current: %s || State: %s" % (self.current_rock_index, rocks[self.current_rock_index]["alive"]))
-            # print("Successful: ")
-            # print(successful_rock_indexes)
-
-            # Mine a rock
-            if fresh_rock:
-                print("---------- MINING A FRESH ROCK ----------------")
-                fresh_rock = False
-                
-                self.session.publish_event(Event([
-                    (Event.click(self.session.translate(rocks[self.current_rock_index]["box"].random_point())), (.1, .15))
-                ]))
-            wait(.1, .15)
-
-
-    def find_rocks(self):
+    #TODO: Tracker init ^ see above function
+    def find_rocks_old(self):
         trackers = []
-        tracker_colours = []
         while len(trackers) < 1:
             frame = np.array(imlib.rescale_obj(grabber.grab(self.session.screen_bounds)))
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -379,7 +401,7 @@ class Mining:
             # Find rocks
             debug("Predicting...")
             predictions = TF_NET.return_predict(frame)
-            bboxes = translate_predictions(predictions, return_as_box=False)
+            bboxes = translate_tracker(predictions)
 
 
             if len(bboxes) > 0:
@@ -388,7 +410,6 @@ class Mining:
                     tracker = cv2.TrackerKCF_create()
                     tracker.init(frame, bbox)
                     trackers.append({"tracker": tracker, "alive": True, "box": None})
-                    tracker_colours.append((random.randint(1, 255), random.randint(1, 255), random.randint(1, 255)))
                 self.find_rocks_start_time = time.time()
                 return trackers
             else:

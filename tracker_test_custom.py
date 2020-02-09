@@ -19,9 +19,9 @@ from tools.session import Session
 TFNET_OPTIONS = {
     # "model": "cfg/yolo-kratos.cfg",
     # "load": -1,
-    "pbLoad": "brain_tanner/yolo-kratos.pb",
-    "metaLoad": "brain_tanner/yolo-kratos.meta",
-    "labels": "./labels.txt",
+    "pbLoad": "brain_mining_copper/yolo-kratos.pb",
+    "metaLoad": "brain_mining_copper/yolo-kratos.meta",
+    "labels": "brain_mining_copper/labels.txt",
     "threshold": 0.1
 }
 TF_NET = TFNet(TFNET_OPTIONS)
@@ -88,10 +88,10 @@ print("Tracker Count: %s" % len(trackers))
 print("Starting stream...")
 refresh_tracker_timer = time.time()
 while True:
-    if time.time() - refresh_tracker_timer > 2:
-        print("Refreshing tracker...")
-        refresh_tracker_timer = time.time()
-        trackers, tracker_colours = initialise_trackers(session)
+    # if time.time() - refresh_tracker_timer > 2:
+    #     print("Refreshing tracker...")
+    #     refresh_tracker_timer = time.time()
+    #     trackers, tracker_colours = initialise_trackers(session)
     
     # Get next frame
     frame = np.array(imlib.rescale_obj(grabber.grab(session.screen_bounds)))
@@ -101,6 +101,7 @@ while True:
     # print("> Updating trackers...")
     for i, tracker in enumerate(trackers):
         success, bbox = tracker.update(frame)
+        print("%s: %s" % (i, success))
         # Draw bounding boxes
         if success:
             p1 = (int(bbox[0]), int(bbox[1]))

@@ -26,6 +26,27 @@ def wait(min, max):
     time.sleep(length)
 
 
+def translate_tracker(predictions, confidence=0.5):
+    bbox_result = []
+    predictions = [prediction for prediction in predictions if prediction["confidence"] > confidence]
+    for prediction in predictions:
+        topleft = Pos(
+            x=prediction["topleft"]["x"],
+            y=prediction["topleft"]["y"]
+        )
+        bottomright = Pos(
+            x=prediction["bottomright"]["x"],
+            y=prediction["bottomright"]["y"]
+        )
+        bbox_result.append((
+            topleft.x,
+            topleft.y,
+            (bottomright.x - topleft.x),
+            (bottomright.y - topleft.y)
+        ))
+    return bbox_result
+
+
 def translate_predictions(predictions, return_as_box=False, confidence=0.5):
     bbox_result = []
     predictions = [prediction for prediction in predictions if prediction["confidence"] > confidence]

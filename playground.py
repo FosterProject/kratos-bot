@@ -32,5 +32,6 @@ s2 = Session(0, 1)
 # TF_NET = TFNet(TFNET_OPTIONS)
 
 
-x = ui.inventory_full(s)
-print(x)
+# x = s.set_region_threshold(0.6).find_in_region(grabber.CHAT_LAST_LINE, "bot_ref_imgs/mining/mining_start.png")
+screen = grabber.grab(s.screen_bounds, grabber.CHAT_LAST_LINE, "debug/test.png", True)
+# print(x)

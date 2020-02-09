@@ -20,6 +20,8 @@ BANK_ITEM_FIRST_POS = Pos(639, 203)
 INVENTORY = Box(Pos(624, 196), Pos(804, 444))
 INVENTORY_ITEM_FIRST_POS = Pos(639, 203)
 
+CHAT_LAST_LINE = Box(Pos(22, 98), Pos(401, 113))
+
 MAP = Box(Pos(696, 8), Pos(841, 153))
 COMPASS = Box(Pos(682, 11), Pos(707, 29))
 
@@ -27,7 +29,7 @@ TAP_OPTION = Box(Pos(5, 166), Pos(29, 181))
 BAR_RIGHT_TOP = Box(Pos(815, 195), Pos(841, 221))
 BAR_LEFT_TOP = Box(Pos(6, 197), Pos(29, 220))
 
-DRAG_BOUNDS = Box(Pos(66, 71), Pos(609, 392))
+DRAG_BOUNDS = Box(Pos(66, 144), Pos(609, 392))
 
 
 

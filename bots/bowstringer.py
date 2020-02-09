@@ -155,6 +155,8 @@ class Bowstringer:
             booth_pos = bank.open(self.session)
             event.add_action(Event.click(booth_pos), (1.5, 2.5))
 
+        # TODO: Add wait for bank
+
         # Empty inventory
         bank_inventory_pos = bank.bank_inventory(self.session)
         event.add_action(Event.click(bank_inventory_pos), (.5, 1))

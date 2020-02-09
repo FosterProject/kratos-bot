@@ -127,7 +127,8 @@ class Bowstringer:
             # Bank inventory
             self.bank_inventory()
 
-            print(" --- RUN TIMER: [%s] --- " % (round((time.time() - run_timer)) / 60, 2))
+            run_time = round((time.time() - run_timer) / 60, 2)
+            print(" --- RUN TIMER: [%s] --- " % run_time)
 
             # Check if we need to log out
             if self.session.should_log_out():

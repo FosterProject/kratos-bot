@@ -90,6 +90,8 @@ class Bowstringer:
         debug("Kratos-Bot >> Starting main bot loop")
 
         while True:
+            run_timer = time.time()
+
             if self.session.should_exit():
                 print("EXITING BOT LOOP")
                 break
@@ -124,6 +126,8 @@ class Bowstringer:
 
             # Bank inventory
             self.bank_inventory()
+
+            print(" --- RUN TIMER: [%s] --- " % (round((time.time() - run_timer)) / 60, 2))
 
             # Check if we need to log out
             if self.session.should_log_out():

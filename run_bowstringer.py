@@ -19,8 +19,6 @@ s = Session(0, 0)
 
 # Define bots
 from bots import bowstringer
-from bots import tanner
-from bots import mining
 bots = [
     {"bot": bowstringer.Bowstringer(s), "thread": None}
 ]

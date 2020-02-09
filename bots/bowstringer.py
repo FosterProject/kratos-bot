@@ -148,21 +148,22 @@ class Bowstringer:
 
 
     def bank_inventory(self):
-        event = Event()
-
         # Open bank
         if not bank.is_bank_open(self.session):
             booth_pos = bank.open(self.session)
-            event.add_action(Event.click(booth_pos), (1.5, 2.5))
+            self.session.publish_event([
+                (Event.click(booth_pos), (1.5, 2.5))
+            ])
 
-        # TODO: Add wait for bank
+        while not bank.is_bank_open(self.session):
+            print("Waiting to open the bank")
+            wait(.5, 1)
 
         # Empty inventory
         bank_inventory_pos = bank.bank_inventory(self.session)
-        event.add_action(Event.click(bank_inventory_pos), (.5, 1))
-
-        # Publish actions
-        self.session.publish_event(event)
+        self.session.publish_event(Event([
+            (Event.click(bank_inventory_pos), (.5, 1))
+        ]))
 
 
     def start_stringing_action(self, event):

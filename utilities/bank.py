@@ -19,11 +19,14 @@ from tools.event_manager import Event
 # Reference Images
 BANK_BOOTH = {
     "NORTH": [
-        # "bot_ref_imgs/bank/north_bank_booth_1.png",
-        # "bot_ref_imgs/bank/north_bank_booth_2.png",
-        # "bot_ref_imgs/bank/north_bank_booth_3.png",
-        # "bot_ref_imgs/bank/north_bank_booth_4.png",
-        "bot_ref_imgs/bank/north_bank_booth_5.png"
+        "bot_ref_imgs/bank/north_bank_booth_1.png",
+        "bot_ref_imgs/bank/north_bank_booth_2.png",
+        "bot_ref_imgs/bank/north_bank_booth_3.png",
+        "bot_ref_imgs/bank/north_bank_booth_4.png",
+        "bot_ref_imgs/bank/north_bank_booth_5.png",
+        "bot_ref_imgs/bank/north_bank_booth_6.png",
+        "bot_ref_imgs/bank/north_bank_booth_7.png",
+        "bot_ref_imgs/bank/north_bank_booth_8.png"
     ],
     "EAST": [
         "bot_ref_imgs/bank/east_bank_booth_1.png",

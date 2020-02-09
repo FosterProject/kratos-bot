@@ -4,11 +4,12 @@ from tools.screen_pos import Pos, Box
 from tools import image_lib as imlib
 from tools.lib import translate_predictions
 from tools import config
+from utilities.items import Item
 config.DEBUG = True
 import pyautogui as bot
 
-from bots import mining
-from bots import bowstringer
+# from bots import mining
+# from bots import bowstringer
 
 from utilities import account
 from utilities import ui
@@ -30,5 +31,6 @@ s2 = Session(0, 1)
 # }
 # TF_NET = TFNet(TFNET_OPTIONS)
 
-x = ui.open_inventory(s2)
-bot.moveTo(x.x, x.y)
+
+x = ui.inventory_full(s)
+print(x)

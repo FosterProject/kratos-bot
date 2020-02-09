@@ -21,9 +21,11 @@ s2 = Session(0, 1)
 # Define bots
 from bots import bowstringer
 from bots import tanner
+from bots import mining
 bots = [
-    {"bot": bowstringer.Bowstringer(s2), "thread": None},
+    # {"bot": bowstringer.Bowstringer(s2), "thread": None},
     # {"bot": tanner.Tanner(s, tanner.TAN_SOFT_LEATHER), "thread": None}
+    {"bot": mining.Mining(s), "thread": None}
 ]
 
 # Run bots

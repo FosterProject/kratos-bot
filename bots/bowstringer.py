@@ -185,5 +185,5 @@ class Bowstringer:
             # Click compass
             compass_pos = ui.click_compass(self.session)
             self.session.publish_event(Event([
-                (Event.click(compass_pos))
+                (Event.click(compass_pos), (.4, .8))
             ]))

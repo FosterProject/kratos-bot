@@ -33,6 +33,8 @@ UNTANNED_HIDE = Item("bot_ref_imgs/tanner/cowhide_short.png", .3)
 TANNED_HIDE = Item("bot_ref_imgs/tanner/hard_leather.png", .3)
 CASH_STACK_BANK = Item("bot_ref_imgs/tanner/cash_stack_bank.png", .3)
 
+UNTANNED_HIDE_EMPTY = Item("bot_ref_imgs/tanner/cowhide_empty.png", .3)
+
 TRADE_WITH_TANNER = "bot_ref_imgs/tanner/trade_ellis.png"
 TAN_ALL = "bot_ref_imgs/tanner/tan_all_smaller.png"
 TANNER_OPEN = "bot_ref_imgs/tanner/tanner_open.png"
@@ -124,21 +126,23 @@ class Tanner:
                 print("EXITING BOT LOOP")
                 break
 
-            # Start an event list
-            event = Event()
-
             # Withdraw untanned hides
-            self.withdraw_resources(event)
+            self.withdraw_resources()
+
+            # Logout if out of resources
+            if self.session.find_in_region(grabber.BANK, UNTANNED_HIDE_EMPTY) is not None:
+                account.logout(self.session)
+                self.session.exit()
+                return
 
             # Close the bank
             bank_close_pos = bank.close(self.session)
             if bank_close_pos is None:
                 error("bot has fallen out of sync, it thinks the bank is open and when it isn't")
                 return
-            event.add_action(Event.click(bank_close_pos), (.8, 1.3))
-
-            # Publish this current event and wait for processing
-            self.session.publish_event(event)
+            self.session.publish_event(Event([
+                (Event.click(bank_close_pos), (.8, 1.3))
+            ]))
 
             # Move to tanner
             self.move(self.tanner_route)
@@ -215,9 +219,11 @@ class Tanner:
         ]))
 
 
-    def withdraw_resources(self, event):
+    def withdraw_resources(self):
         res1_pos = bank.withdraw_item(self.session, UNTANNED_HIDE)
-        event.add_action(Event.click(res1_pos), (.5, 1))
+        self.session.publish_event(Event([
+            (Event.click(res1_pos), (.1, .3))
+        ]))
 
 
     def true_north(self):
@@ -229,7 +235,7 @@ class Tanner:
             # Click compass
             compass_pos = ui.click_compass(self.session)
             self.session.publish_event(Event([
-                (Event.click(compass_pos))
+                (Event.click(compass_pos), (.1, .3))
             ]))
 
 

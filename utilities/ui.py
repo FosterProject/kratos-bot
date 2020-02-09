@@ -20,6 +20,7 @@ BAR_TAB_HEIGHT = 38
 
 # Images
 INVENTORY_ICON_ACTIVE = "bot_ref_imgs/ui/inv_icon_active.png"
+INVENTORY_FULL = "bot_ref_imgs/ui/inventory_full.png"
 
 
 def open_tab(session, side, item):
@@ -36,6 +37,10 @@ def open_tab(session, side, item):
 
 def click_tap_option(session):
     return session.translate(grabber.TAP_OPTION.random_point())
+
+
+def inventory_full(session):
+    return session.find_in_client(INVENTORY_FULL) is not None
 
 
 def is_inventory_open(session):

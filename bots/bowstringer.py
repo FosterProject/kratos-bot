@@ -129,7 +129,7 @@ class Bowstringer:
 
             run_time = round((time.time() - run_timer) / 60, 2)
             print(" --- RUN TIMER: [%s] --- " % run_time)
-            print(" --- RUN TIMER: [%s] --- " % time.time() - run_timer)
+            print(" --- RUN TIMER: [%s] --- " % int(time.time() - run_timer))
 
             # Check if we need to log out
             if self.session.should_log_out():

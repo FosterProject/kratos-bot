@@ -156,9 +156,17 @@ class Bowstringer:
                 (Event.click(booth_pos), (1.5, 2.5))
             ]))
 
+        idle_time = time.time()
         while not bank.is_bank_open(self.session):
-            print("Waiting to open the bank")
-            wait(.5, 1)
+            if time.time() - idle_time >= 6:
+                booth_pos = bank.open(self.session, "NORTH")
+                self.session.publish_event(Event([
+                    (Event.click(booth_pos), (1.5, 2.5))
+                ]))
+                idle_time = time.time()
+            else:
+                print("Waiting to open the bank")
+                wait(.5, 1)
 
         # Empty inventory
         bank_inventory_pos = bank.bank_inventory(self.session)

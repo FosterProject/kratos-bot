@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import time
+import math
 
 # Custom library
 import tools.osrs_screen_grab as grabber
@@ -26,7 +27,6 @@ class Movement:
         template = np.array(template.convert("L"))
         w = template_box.width
         h = template_box.height
-        print(w, h)
 
         res = cv2.matchTemplate(screen, template, cv2.TM_CCOEFF_NORMED)
         maxpos = cv2.minMaxLoc(res)
@@ -37,8 +37,18 @@ class Movement:
 
         maxpos = cv2.minMaxLoc(res)[3]
 
+        print(maxpos)
+        print((maxpos[0] + (w / 2) - 1))
+
         if config.DEBUG:
-            cv2.rectangle(_, maxpos, (maxpos[0] + int(w), maxpos[1] + int(h)), (255, 0, 0), 5)
+            cv2.rectangle(_, maxpos, (maxpos[0] + int(w), maxpos[1] + int(h)), (255, 0, 0), 1)
+            cv2.rectangle(_, (
+                int(maxpos[0] + (w / 2)) + 2,
+                int(maxpos[1] + (w / 2)) - 1
+            ), (
+                int(maxpos[0] + (w / 2)) + 2,
+                int(maxpos[1] + (w / 2)) - 1
+            ), (255, 0, 0), 1)
             cv2.imwrite('debug/client%s%s/find_in_world_map.png' % (self.session.row, self.session.col), _)
 
         return self.session.translate(Box(
@@ -52,7 +62,7 @@ class Movement:
         map_height = config.GAME_HEIGHT - config.WORLD_MAP_Y_BUFFER_TOP - config.WORLD_MAP_Y_BUFFER_BOTTOM
         cx = map_width / 2
         cy = map_height / 2
-        dist = cx / 4
+        dist = cx / 11 
 
         tl = Pos(
             (cx - dist) + config.WORLD_MAP_X_BUFFER_LEFT,

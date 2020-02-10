@@ -34,5 +34,9 @@ s2 = Session(0, 1)
 # TF_NET = TFNet(TFNET_OPTIONS)
 
 
-x = bank.is_bank_open(s2)
+from utilities.movement_new import Movement
+
+m = Movement(s)
+
+x = m.find_position_in_world_map()
 print(x)

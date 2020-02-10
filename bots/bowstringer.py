@@ -148,6 +148,11 @@ class Bowstringer:
 
 
     def bank_inventory(self):
+        compass_pos = ui.click_compass(self.session)
+        self.session.publish_event(Event([
+            (Event.click(compass_pos), (.2, .4))
+        ]))
+
         # Open bank
         if not bank.is_bank_open(self.session):
             print("CLICKING BANK")
@@ -159,6 +164,10 @@ class Bowstringer:
         idle_time = time.time()
         while not bank.is_bank_open(self.session):
             if time.time() - idle_time >= 6:
+                compass_pos = ui.click_compass(self.session)
+                self.session.publish_event(Event([
+                    (Event.click(compass_pos), (.2, .4))
+                ]))
                 booth_pos = bank.open(self.session, "NORTH")
                 self.session.publish_event(Event([
                     (Event.click(booth_pos), (1.5, 2.5))

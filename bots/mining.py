@@ -73,7 +73,7 @@ MOVEMENT_BANK_PATH = [
 # Positions (Unique to bot so not in grabber)
 
 # Constants
-MINING_WAIT_FOR_SUCCESS_MAX = 5
+MINING_WAIT_FOR_SUCCESS_MAX = 10
 MINING_WAIT_FOR_START_MAX = 5
 
 # Load Darkflow

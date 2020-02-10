@@ -130,19 +130,24 @@ class Tanner:
             self.withdraw_resources()
 
             # Logout if out of resources
-            if self.session.find_in_region(grabber.BANK, UNTANNED_HIDE_EMPTY) is not None:
-                account.logout(self.session)
-                self.session.exit()
-                return
+            out_of_resource = self.session.find_in_region(grabber.BANK, UNTANNED_HIDE_EMPTY) is not None
 
             # Close the bank
             bank_close_pos = bank.close(self.session)
             if bank_close_pos is None:
                 error("bot has fallen out of sync, it thinks the bank is open and when it isn't")
-                return
-            self.session.publish_event(Event([
-                (Event.click(bank_close_pos), (.8, 1.3))
-            ]))
+                break
+            event = Event()
+            event.add_action(Event.click(bank_close_pos), (.8, 1.3))
+            if out_of_resource:
+                event.add_action(Event.click(bank_close_pos), (.8, 1.3))
+            self.session.publish_event(event)
+
+            # Log out checkpoint
+            if out_of_resource:
+                account.logout(self.session)
+                self.session.exit()
+                break
 
             # Move to tanner
             self.move(self.tanner_route)

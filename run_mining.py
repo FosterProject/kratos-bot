@@ -15,14 +15,16 @@ EM = EventManager.get_instance()
 
 # Sessions
 s = Session(0, 0)
-s1 = Session(0, 1)
+s2 = Session(0, 1)
+s3 = Session(1, 0)
 
 
 # Define bots
-from bots import tanner
+from bots import mining
 bots = [
-    {"bot": tanner.Tanner(s, tanner.TAN_SOFT_LEATHER), "thread": None},
-    {"bot": tanner.Tanner(s1, tanner.TAN_SOFT_LEATHER), "thread": None}
+    {"bot": mining.Mining(s), "thread": None},
+    {"bot": mining.Mining(s2), "thread": None},
+    {"bot": mining.Mining(s3), "thread": None},
 ]
 
 # Run bots
@@ -34,7 +36,7 @@ for bot in bots:
 try:
     while True:
         EM.process_event()
-        time.sleep(.3)
+        time.sleep(.15)
 except KeyboardInterrupt:
     pass
 

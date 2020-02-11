@@ -64,20 +64,21 @@ class Event:
                 self.add_action(action, delay)
 
     
-    def add_action(self, action, delay=(.1, .2)):
+    def add_action(self, action, delay=None):
         if not callable(action):
             debug("Event - add_action: action is not a callable")
             return
         def ac():
             action()
-            wait(*delay)
+            if delay is not None:
+                wait(*delay)
         self.actions.append(ac)
     
 
     @staticmethod
-    def basic_click(session, pos, wait=(.1, .2)):
+    def basic_click(session, pos, wait=None):
         click_event = Event([
-            (Event.click(pos), (.1, .2))
+            (Event.click(pos), wait)
         ])
         session.publish_event(click_event)
 

@@ -12,6 +12,7 @@ import numpy as np
 # Libraries
 from tools import osrs_screen_grab as grabber
 from tools import image_lib as imlib
+from tools import bot
 from tools.lib import wait
 from tools.lib import debug
 from tools.lib import error
@@ -120,7 +121,6 @@ class Tanner:
         self.startup()
 
         debug("Kratos-Bot >> Starting main bot loop")
-
         while True:
             if self.session.should_exit():
                 print("EXITING BOT LOOP")
@@ -252,17 +252,23 @@ class Tanner:
 
 
     def tan_hides(self):
-        # Click on trade with tanner
-        trade_pos = None
-        while trade_pos is None:
-            # Find tanner
-            tanner_pos = self.find_tanner()
+        def click_on_tanner():
+            # Click on trade with tanner
+            trade_pos = None
+            while trade_pos is None:
+                # Find tanner
+                tanner_pos = self.find_tanner()
 
-            # Click on tanner
-            self.session.publish_event(Event([
-                (Event.click_long(tanner_pos), (.2, .4))
-            ]))
-            trade_pos = self.session.find_in_client(TRADE_WITH_TANNER)
+                # Click on tanner
+                bot.click_long(tanner_pos)
+                trade_pos = self.session.find_in_client(TRADE_WITH_TANNER)
+        
+        self.session.publish_event(Event([
+            (click_on_tanner, None)
+        ]))
+
+        # TODO: Have the event manager return the value of the event
+        trade_pos = self.session.find_in_client(TRADE_WITH_TANNER)
         self.session.publish_event(Event([
             (Event.click(trade_pos), (.5, .8))
         ]))
@@ -299,11 +305,12 @@ class Tanner:
             bboxes = translate_predictions(predictions, return_as_box=True)
             print(bboxes)
             if len(bboxes) > 0:
-                tanner_pos = self.session.translate(bboxes[0].random_point())
+                tanner_pos = self.session.translate(bboxes[0].center())
             else:
                 # Spin camera
-                self.session.publish_event(Event([
-                    (Event.drag(*ui.spin_around(self.session)), (.1, .2))
-                ]))
+                bot.drag(*ui.spin_around(self.session))
+                # self.session.publish_event(Event([
+                #     (Event.drag(*ui.spin_around(self.session)), (.1, .2))
+                # ]))
 
         return tanner_pos

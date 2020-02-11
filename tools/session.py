@@ -62,6 +62,7 @@ class Session:
         while self.has_pending_event and not self._exit_thread:
             wait(.5, 1)
 
+
     # NOT WORKING PROPERLY
     def find_in_region_colour(self, region, item_ref):
         screen = grabber.grab(self.screen_bounds, region)

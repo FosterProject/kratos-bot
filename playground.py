@@ -8,6 +8,8 @@ from utilities.items import Item
 config.DEBUG = True
 import pyautogui as bot
 
+import time
+
 # from bots import mining
 # from bots import bowstringer
 
@@ -34,5 +36,13 @@ s2 = Session(0, 1)
 # TF_NET = TFNet(TFNET_OPTIONS)
 
 
-x = bank.is_bank_open(s2)
-print(x)
+from bots import tanner
+x = tanner.Tanner(s2, tanner.TAN_SOFT_LEATHER)
+
+y = x.find_tanner()
+bot.mouseDown(y.x, y.y)
+time.sleep(2)
+bot.mouseUp()
+
+# x = ui.run_full(s)
+# print(x)

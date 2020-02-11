@@ -86,6 +86,10 @@ class Event:
         return lambda: bot.click(pos)
 
     @staticmethod
+    def click_long(pos):
+        return lambda: bot.click_long(pos)
+
+    @staticmethod
     def drag(pos1, pos2, time):
         return lambda: bot.drag(pos1, pos2, time)
 

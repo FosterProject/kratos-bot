@@ -138,7 +138,7 @@ class Tanner:
                 error("bot has fallen out of sync, it thinks the bank is open and when it isn't")
                 break
             event = Event()
-            event.add_action(Event.click(bank_close_pos), (.8, 1.3))
+            event.add_action(Event.click(bank_close_pos), (.3, .6))
             if out_of_resource:
                 event.add_action(Event.click(bank_close_pos), (.8, 1.3))
             self.session.publish_event(event)
@@ -149,16 +149,23 @@ class Tanner:
                 self.session.exit()
                 break
 
+            
+            # Full run
+            if ui.run_full(self.session):
+                self.session.publish_event(Event([
+                    (Event.click(self.session.translate(grabber.RUN_ORB.random_point())), (.2, .4))
+                ]))
+
             # Move to tanner
             self.move(self.tanner_route)
 
             # Enable two-step click
             event = Event()
-            event.add_action(Event.click(ui.click_tap_option(self.session)), (.5, .8))
+            # event.add_action(Event.click(ui.click_tap_option(self.session)), (.2, .4))
 
             # Click compass
             compass_pos = ui.click_compass(self.session)
-            event.add_action(Event.click(compass_pos), (.5, .8))
+            event.add_action(Event.click(compass_pos), (.2, .4))
             
             self.session.publish_event(event)
 
@@ -167,8 +174,8 @@ class Tanner:
 
             # Disable two-step click
             self.session.publish_event(Event([
-                (Event.click(ui.click_tap_option(self.session)), (.4, .8)),
-                (Event.click(ui.click_compass(self.session)), (.5, .8))
+                # (Event.click(ui.click_tap_option(self.session)), (.2, .4)),
+                (Event.click(ui.click_compass(self.session)), (.2, .4))
             ]))
 
             # Move to bank
@@ -220,7 +227,7 @@ class Tanner:
         # Empty inventory
         bank_inventory_pos = bank.bank_inventory(self.session)
         self.session.publish_event(Event([
-            (Event.click(bank_inventory_pos), (.5, .8))
+            (Event.click(bank_inventory_pos), (.2, .4))
         ]))
 
 
@@ -253,7 +260,7 @@ class Tanner:
 
             # Click on tanner
             self.session.publish_event(Event([
-                (Event.click(tanner_pos), (.2, .4))
+                (Event.click_long(tanner_pos), (.2, .4))
             ]))
             trade_pos = self.session.find_in_client(TRADE_WITH_TANNER)
         self.session.publish_event(Event([
@@ -262,11 +269,11 @@ class Tanner:
 
         while self.session.find_in_client(TANNER_OPEN) is None:
             debug("Tanner - tan_hides: Waiting for tanner menu to open")
-            wait(.5, 1)
+            wait(.3, .6)
 
         # Click on leather portion
         self.session.publish_event(Event([
-            (Event.click(self.session.translate(self.target_leather.random_point())), (.5, .8))
+            (Event.click_long(self.session.translate(self.target_leather.random_point())), (.3, .6))
         ]))
 
         # Click on 'all' on leather portion

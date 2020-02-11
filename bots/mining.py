@@ -48,7 +48,6 @@ MOVEMENT_MINE_PATH = [
     [
         "bot_ref_imgs/mining/movement/4_0.png",
         "bot_ref_imgs/mining/movement/4_1.png",
-        "bot_ref_imgs/mining/movement/4_2.png",
     ],
     "bot_ref_imgs/mining/movement/3.png",
     "bot_ref_imgs/mining/movement/2.png",
@@ -63,7 +62,6 @@ MOVEMENT_BANK_PATH = [
     [
         "bot_ref_imgs/mining/movement/4_0.png",
         "bot_ref_imgs/mining/movement/4_1.png",
-        "bot_ref_imgs/mining/movement/4_2.png",
     ],
     "bot_ref_imgs/mining/movement/5.png",
     "bot_ref_imgs/mining/movement/6.png",

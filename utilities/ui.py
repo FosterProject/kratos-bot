@@ -22,6 +22,8 @@ BAR_TAB_HEIGHT = 38
 INVENTORY_ICON_ACTIVE = "bot_ref_imgs/ui/inv_icon_active.png"
 INVENTORY_FULL = "bot_ref_imgs/ui/inventory_full.png"
 
+RUN_FULL = "bot_ref_imgs/ui/full_run.png"
+
 
 def open_tab(session, side, item):
     if side != "LEFT" and side != "RIGHT":
@@ -41,6 +43,10 @@ def click_tap_option(session):
 
 def inventory_full(session):
     return session.find_in_client(INVENTORY_FULL) is not None
+
+
+def run_full(session):
+    return session.find_in_client(RUN_FULL) is not None
 
 
 def is_inventory_open(session):

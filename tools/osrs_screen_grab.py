@@ -24,6 +24,7 @@ CHAT_LAST_LINE = Box(Pos(22, 98), Pos(401, 113))
 
 MAP = Box(Pos(696, 8), Pos(841, 153))
 COMPASS = Box(Pos(682, 11), Pos(707, 29))
+RUN_ORB = Box(Pos(687, 116), Pos(702, 130))
 
 TAP_OPTION = Box(Pos(5, 166), Pos(29, 181))
 BAR_RIGHT_TOP = Box(Pos(815, 195), Pos(841, 221))

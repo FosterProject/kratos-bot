@@ -97,7 +97,7 @@ class Tanner:
         # True north
         compass_pos = ui.click_compass(self.session)
         self.session.publish_event(Event([
-            (Event.click(compass_pos), (.2, .4))
+            (Event.click(compass_pos), None)
         ]))
 
         # At bank check
@@ -128,6 +128,7 @@ class Tanner:
 
             # Withdraw untanned hides
             self.withdraw_resources()
+            wait(1.1, 1.7)
 
             # Logout if out of resources
             out_of_resource = self.session.find_in_region(grabber.BANK, UNTANNED_HIDE_EMPTY) is not None
@@ -138,9 +139,9 @@ class Tanner:
                 error("bot has fallen out of sync, it thinks the bank is open and when it isn't")
                 break
             event = Event()
-            event.add_action(Event.click(bank_close_pos), (.3, .6))
+            event.add_action(Event.click(bank_close_pos), (.3, .6) if out_of_resource else None)
             if out_of_resource:
-                event.add_action(Event.click(bank_close_pos), (.8, 1.3))
+                event.add_action(Event.click(bank_close_pos))
             self.session.publish_event(event)
 
             # Log out checkpoint
@@ -153,29 +154,24 @@ class Tanner:
             # Full run
             if ui.run_full(self.session):
                 self.session.publish_event(Event([
-                    (Event.click(self.session.translate(grabber.RUN_ORB.random_point())), (.2, .4))
+                    (Event.click(self.session.translate(grabber.RUN_ORB.random_point())), None)
                 ]))
 
             # Move to tanner
             self.move(self.tanner_route)
 
-            # Enable two-step click
-            event = Event()
-            # event.add_action(Event.click(ui.click_tap_option(self.session)), (.2, .4))
-
             # Click compass
             compass_pos = ui.click_compass(self.session)
-            event.add_action(Event.click(compass_pos), (.2, .4))
-            
-            self.session.publish_event(event)
+            self.session.publish_event(Event([
+                (Event.click(ui.click_compass(self.session)), None)
+            ]))
 
             # Find tanner and tan hides
             self.tan_hides()
 
             # Disable two-step click
             self.session.publish_event(Event([
-                # (Event.click(ui.click_tap_option(self.session)), (.2, .4)),
-                (Event.click(ui.click_compass(self.session)), (.2, .4))
+                (Event.click(ui.click_compass(self.session)), None)
             ]))
 
             # Move to bank
@@ -183,6 +179,7 @@ class Tanner:
 
             # Bank inventory
             self.bank_inventory()
+            wait(.8, 1.3)
 
             # Check if we need to log out
             if self.session.should_log_out():
@@ -204,7 +201,7 @@ class Tanner:
         while not route.finished:
             step_pos = route.step()
             self.session.publish_event(Event([
-                (Event.click(step_pos), (.2, .5))
+                (Event.click(step_pos), None)
             ]))
             while route.is_moving:
                 route.check_is_moving()
@@ -217,24 +214,37 @@ class Tanner:
         if not bank.is_bank_open(self.session):
             booth_pos = bank.open(self.session, "EAST")
             self.session.publish_event(Event([
-                (Event.click(booth_pos), (.9, 1.1))
+                (Event.click(booth_pos), None)
             ]))
+            wait(1.5, 2.5)
 
+        idle_time = time.time()
         while not bank.is_bank_open(self.session):
-            print("Waiting to open the bank")
-            wait(.5, 1)
+            if time.time() - idle_time >= 6:
+                self.session.publish_event(Event([
+                    (Event.click(ui.click_compass(self.session)), None)
+                ]))
+                booth_pos = bank.open(self.session, "EAST")
+                self.session.publish_event(Event([
+                    (Event.click(booth_pos), None)
+                ]))
+                wait(1.5, 2.5)
+                idle_time = time.time()
+            else:
+                print("Waiting to open the bank")
+                wait(.5, 1)
 
         # Empty inventory
         bank_inventory_pos = bank.bank_inventory(self.session)
         self.session.publish_event(Event([
-            (Event.click(bank_inventory_pos), (.2, .4))
+            (Event.click(bank_inventory_pos), None)
         ]))
 
 
     def withdraw_resources(self):
         res1_pos = bank.withdraw_item(self.session, UNTANNED_HIDE)
         self.session.publish_event(Event([
-            (Event.click(res1_pos), (.1, .3))
+            (Event.click(res1_pos), None)
         ]))
 
 
@@ -262,15 +272,17 @@ class Tanner:
                 # Click on tanner
                 bot.click_long(tanner_pos)
                 trade_pos = self.session.find_in_client(TRADE_WITH_TANNER)
+            return trade_pos
         
-        self.session.publish_event(Event([
+        click_on_tanner_event = Event([
             (click_on_tanner, None)
-        ]))
+        ])
+        self.session.publish_event(click_on_tanner_event)
 
         # TODO: Have the event manager return the value of the event
-        trade_pos = self.session.find_in_client(TRADE_WITH_TANNER)
+        trade_pos = click_on_tanner_event.action_returns[0]
         self.session.publish_event(Event([
-            (Event.click(trade_pos), (.5, .8))
+            (Event.click(trade_pos), None)
         ]))
 
         while self.session.find_in_client(TANNER_OPEN) is None:
@@ -279,7 +291,7 @@ class Tanner:
 
         # Click on leather portion
         self.session.publish_event(Event([
-            (Event.click_long(self.session.translate(self.target_leather.random_point())), (.3, .6))
+            (Event.click_long(self.session.translate(self.target_leather.random_point())), None)
         ]))
 
         # Click on 'all' on leather portion
@@ -289,7 +301,7 @@ class Tanner:
             self.session.exit()
             return
         self.session.publish_event(Event([
-            (Event.click(tan_all_pos), (.2, .5))
+            (Event.click(tan_all_pos), None)
         ]))
 
 

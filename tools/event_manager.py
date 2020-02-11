@@ -59,6 +59,7 @@ class EventManager:
 class Event:
     def __init__(self, actions=[]):
         self.actions = []
+        self.action_returns = []
         if isinstance(actions, list):
             for action, delay in actions:
                 self.add_action(action, delay)
@@ -69,7 +70,8 @@ class Event:
             debug("Event - add_action: action is not a callable")
             return
         def ac():
-            action()
+            res = action()
+            self.action_returns.append(res)
             if delay is not None:
                 wait(*delay)
         self.actions.append(ac)

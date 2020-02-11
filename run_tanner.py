@@ -36,7 +36,7 @@ for bot in bots:
 try:
     while True:
         EM.process_event()
-        time.sleep(.2)
+        time.sleep(.1)
 except KeyboardInterrupt:
     pass
 

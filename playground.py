@@ -36,13 +36,6 @@ s2 = Session(0, 1)
 # TF_NET = TFNet(TFNET_OPTIONS)
 
 
-from bots import tanner
-x = tanner.Tanner(s2, tanner.TAN_SOFT_LEATHER)
 
-y = x.find_tanner()
-bot.mouseDown(y.x, y.y)
-time.sleep(2)
-bot.mouseUp()
-
-# x = ui.run_full(s)
-# print(x)
+x = s.set_region_threshold(0.6).find_in_region(grabber.MAP, "bot_ref_imgs/tanner/movement/2.png")
+print(x)

@@ -38,7 +38,7 @@ class Movement:
         step = self.steps[self.current_step]
         if isinstance(step, list):
             for step_obj in step:
-                step_pos = self.session.find_in_region(grabber.MAP, step_obj)
+                step_pos = self.session.set_region_threshold(0.6).find_in_region(grabber.MAP, step_obj)
                 if step_pos is not None:
                     break
         else:

@@ -39,4 +39,5 @@ from utilities.movement_new import Movement
 m = Movement(s)
 
 x = m.find_position_in_world_map()
+# x = m.get_world_map_portion()
 print(x)

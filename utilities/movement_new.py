@@ -12,7 +12,7 @@ from tools.lib import debug
 
 
 # Image References
-WORLD_MAP = "bot_ref_imgs/movement_new/world_map_varrock.png"
+WORLD_MAP = "bot_ref_imgs/movement_new/split/varrock_area.png"
 
 class Movement:
     def __init__(self, session):
@@ -27,6 +27,7 @@ class Movement:
         template = np.array(template.convert("L"))
         w = template_box.width
         h = template_box.height
+        print(w, h)
 
         res = cv2.matchTemplate(screen, template, cv2.TM_CCOEFF_NORMED)
         maxpos = cv2.minMaxLoc(res)
@@ -37,17 +38,16 @@ class Movement:
 
         maxpos = cv2.minMaxLoc(res)[3]
 
-        print(maxpos)
-        print((maxpos[0] + (w / 2) - 1))
+        print((maxpos[0] + w))
 
         if config.DEBUG:
             cv2.rectangle(_, maxpos, (maxpos[0] + int(w), maxpos[1] + int(h)), (255, 0, 0), 1)
             cv2.rectangle(_, (
-                int(maxpos[0] + (w / 2)) + 2,
-                int(maxpos[1] + (w / 2)) - 1
+                int(maxpos[0] + (w / 2)),
+                int(maxpos[1] + (w / 2))
             ), (
-                int(maxpos[0] + (w / 2)) + 2,
-                int(maxpos[1] + (w / 2)) - 1
+                int(maxpos[0] + (w / 2)),
+                int(maxpos[1] + (w / 2))
             ), (255, 0, 0), 1)
             cv2.imwrite('debug/client%s%s/find_in_world_map.png' % (self.session.row, self.session.col), _)
 
@@ -60,9 +60,10 @@ class Movement:
     def get_world_map_portion(self):
         map_width = config.GAME_WIDTH - config.WORLD_MAP_X_BUFFER_LEFT - config.WORLD_MAP_X_BUFFER_RIGHT
         map_height = config.GAME_HEIGHT - config.WORLD_MAP_Y_BUFFER_TOP - config.WORLD_MAP_Y_BUFFER_BOTTOM
-        cx = map_width / 2
-        cy = map_height / 2
-        dist = cx / 11 
+        cx = (map_width / 2) + 1
+        cy = (map_height / 2) - 2
+        # dist = cx / 11
+        dist = 15 * 3
 
         tl = Pos(
             (cx - dist) + config.WORLD_MAP_X_BUFFER_LEFT,

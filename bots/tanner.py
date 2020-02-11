@@ -262,25 +262,29 @@ class Tanner:
 
 
     def tan_hides(self):
-        def click_on_tanner():
-            # Click on trade with tanner
-            trade_pos = None
-            while trade_pos is None:
-                # Find tanner
-                tanner_pos = self.find_tanner()
+        # def click_on_tanner():
+        # Click on trade with tanner
+        trade_pos = None
+        while trade_pos is None:
+            # Find tanner
+            tanner_pos = self.find_tanner()
 
-                # Click on tanner
-                bot.click_long(tanner_pos)
-                trade_pos = self.session.find_in_client(TRADE_WITH_TANNER)
-            return trade_pos
+            # Click on tanner
+            # bot.click_long(tanner_pos)
+            self.session.publish_event(Event([
+                (Event.click_long(tanner_pos), None)
+            ]))
+
+            trade_pos = self.session.find_in_client(TRADE_WITH_TANNER)
+        # return trade_pos
         
-        click_on_tanner_event = Event([
-            (click_on_tanner, None)
-        ])
-        self.session.publish_event(click_on_tanner_event)
+        # click_on_tanner_event = Event([
+        #     (click_on_tanner, None)
+        # ])
+        # self.session.publish_event(click_on_tanner_event)
 
         # TODO: Have the event manager return the value of the event
-        trade_pos = click_on_tanner_event.action_returns[0]
+        # trade_pos = click_on_tanner_event.action_returns[0]
         self.session.publish_event(Event([
             (Event.click(trade_pos), None)
         ]))
@@ -320,9 +324,9 @@ class Tanner:
                 tanner_pos = self.session.translate(bboxes[0].center())
             else:
                 # Spin camera
-                bot.drag(*ui.spin_around(self.session))
-                # self.session.publish_event(Event([
-                #     (Event.drag(*ui.spin_around(self.session)), (.1, .2))
-                # ]))
+                # bot.drag(*ui.spin_around(self.session))
+                self.session.publish_event(Event([
+                    (Event.drag(*ui.spin_around(self.session)), None)
+                ]))
 
         return tanner_pos

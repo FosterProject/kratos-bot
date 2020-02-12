@@ -59,7 +59,7 @@ TAN_SOFT_LEATHER = Box(Pos(183, 227), Pos(215, 255))
 TFNET_OPTIONS = {
     "pbLoad": "brain_tanner/yolo-kratos.pb",
     "metaLoad": "brain_tanner/yolo-kratos.meta",
-    "labels": "./labels.txt",
+    "labels": "brain_tanner/labels.txt",
     "threshold": 0.1
 }
 TF_NET = TFNet(TFNET_OPTIONS)

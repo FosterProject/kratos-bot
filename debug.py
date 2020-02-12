@@ -1,18 +1,12 @@
-import time
+import keyboard
 
-print("starting")
 
-try:
-    while True:
-        print("Processing...")
-        # EVENT_MANAGER.process_event()
-        time.sleep(.5)
-except KeyboardInterrupt:
-    pass
+EXIT_FLAG = False
+def stop():
+    global EXIT_FLAG
+    EXIT_FLAG = True
 
-# Exit threads and bots
-bots = [1,2,3]
-for bot in bots:
-    print(bot)
-    # bot["bot"].session.exit()
-    # bot["thread"].join()
+keyboard.on_press_key('esc', lambda event: stop())
+
+while True:
+    print(EXIT_FLAG)

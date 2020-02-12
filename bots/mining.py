@@ -147,33 +147,69 @@ class Mining:
             compass_pos = ui.click_compass(self.session)
             self.session.publish_event(Event([(Event.click(compass_pos), (.5, .8))]))
 
+            if self.session.should_exit():
+                print("EXITING BOT LOOP")
+                break
+
             # Move to mine
             self.move(self.mining_route)
+
+            if self.session.should_exit():
+                print("EXITING BOT LOOP")
+                break
 
             # Click compass
             compass_pos = ui.click_compass(self.session)
             self.session.publish_event(Event([(Event.click(compass_pos), (.5, .8))]))
+
+            if self.session.should_exit():
+                print("EXITING BOT LOOP")
+                break
 
             # Spin camera
             self.session.publish_event(Event([
                 (Event.drag(*ui.spin_around(self.session)), (.1, .2))
             ]))
 
+            if self.session.should_exit():
+                print("EXITING BOT LOOP")
+                break
+
             # Mine rocks until inventory is full
             self.mine_rocks()
+
+            if self.session.should_exit():
+                print("EXITING BOT LOOP")
+                break
 
             compass_pos = ui.click_compass(self.session)
             self.session.publish_event(Event([(Event.click(compass_pos), (.5, .8))]))
 
+            if self.session.should_exit():
+                print("EXITING BOT LOOP")
+                break
+
             # Move to bank
             self.move(self.bank_route)
+
+            if self.session.should_exit():
+                print("EXITING BOT LOOP")
+                break
 
             # Click compass
             compass_pos = ui.click_compass(self.session)
             self.session.publish_event(Event([(Event.click(compass_pos), (.5, .8))]))
 
+            if self.session.should_exit():
+                print("EXITING BOT LOOP")
+                break
+
             # Bank inventory
             self.deposit_inventory()
+
+            if self.session.should_exit():
+                print("EXITING BOT LOOP")
+                break
 
             # Check if we need to log out
             if self.session.should_log_out():
@@ -193,6 +229,9 @@ class Mining:
 
     def move(self, route):
         while not route.finished:
+            if self.session.should_exit():
+                print("EXITING BOT LOOP")
+                break
             step_pos = route.step()
             self.session.publish_event(Event([
                 (Event.click(step_pos), (.2, .5))

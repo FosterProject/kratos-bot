@@ -18,10 +18,12 @@ GAME_HEIGHT = 476
 SCALE_WIDTH = 480
 
 # Bot references
-BOT_1 = (0, 0)
-BOT_2 = (0, 1)
-BOT_3 = (1, 0)
-BOT_4 = (1, 1)
+BOTS = [
+    (0, 0),
+    (0, 1),
+    (1, 0),
+    (1, 1)
+]
 
 # Debug
 DEBUG = False

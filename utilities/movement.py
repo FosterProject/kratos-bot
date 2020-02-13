@@ -36,13 +36,7 @@ class Movement:
 
     def step(self):
         step = self.steps[self.current_step]
-        if isinstance(step, list):
-            for step_obj in step:
-                step_pos = self.session.set_region_threshold(0.6).find_in_region(grabber.MAP, step_obj)
-                if step_pos is not None:
-                    break
-        else:
-            step_pos = self.session.find_in_region(grabber.MAP, step)
+        step_pos = self.find_step(step)
 
         # Set current step to next step
         self.current_step += 1
@@ -53,6 +47,19 @@ class Movement:
         self.movement_idle_start_time = None
         return step_pos
     
+
+    def find_step(self, step):
+        if not isinstance(step, list):
+            step = [step]
+        step_pos = None
+        while step_pos is None:
+            for step_obj in step:
+                step_pos = self.session.set_region_threshold(0.6).find_in_region(grabber.MAP, step_obj)
+                if step_pos is not None:
+                    break
+
+        return step_pos
+
 
     def check_is_moving(self):
         debug("Movement - check_is_moving")

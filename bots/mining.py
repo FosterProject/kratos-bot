@@ -247,12 +247,24 @@ class Mining:
         if not bank.is_bank_open(self.session):
             booth_pos = bank.open(self.session, "NORTH")
             self.session.publish_event(Event([
-                (Event.click(booth_pos), (.5, .8))
+                (Event.click(booth_pos), None)
             ]))
 
+        idle_time = time.time()
         while not bank.is_bank_open(self.session):
-            print("Waiting to open the bank")
-            wait(.5, 1)
+            if time.time() - idle_time >= 6:
+                self.session.publish_event(Event([
+                    (Event.click(ui.click_compass(self.session)), None)
+                ]))
+                booth_pos = bank.open(self.session, "NORTH")
+                self.session.publish_event(Event([
+                    (Event.click(booth_pos), None)
+                ]))
+                wait(1.5, 2.5)
+                idle_time = time.time()
+            else:
+                print("Waiting to open the bank")
+                wait(.5, 1)
 
         # Event
         event = Event()

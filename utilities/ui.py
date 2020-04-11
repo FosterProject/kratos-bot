@@ -13,7 +13,7 @@ from tools.lib import wait
 
 # DURATIONS
 DRAG_DURATION_MIN = 0.4
-DRAG_DURATION_MAX = 1.3
+DRAG_DURATION_MAX = 0.7
 
 # Constants
 BAR_TAB_HEIGHT = 38

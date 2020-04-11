@@ -161,9 +161,9 @@ class Tanner:
             self.move(self.tanner_route)
 
             # Click compass
-            compass_pos = ui.click_compass(self.session)
             self.session.publish_event(Event([
-                (Event.click(ui.click_compass(self.session)), None)
+                (Event.click(ui.click_compass(self.session)), (.2, .4)),
+                (Event.click(ui.click_tap_option(self.session)), None)
             ]))
 
             # Find tanner and tan hides
@@ -171,7 +171,8 @@ class Tanner:
 
             # Disable two-step click
             self.session.publish_event(Event([
-                (Event.click(ui.click_compass(self.session)), None)
+                (Event.click(ui.click_compass(self.session)), (.2, .4)),
+                (Event.click(ui.click_tap_option(self.session)), None)
             ]))
 
             # Move to bank
@@ -272,7 +273,7 @@ class Tanner:
             # Click on tanner
             # bot.click_long(tanner_pos)
             self.session.publish_event(Event([
-                (Event.click_long(tanner_pos), None)
+                (Event.click(tanner_pos), None)
             ]))
 
             trade_pos = self.session.find_in_client(TRADE_WITH_TANNER)
@@ -295,7 +296,7 @@ class Tanner:
 
         # Click on leather portion
         self.session.publish_event(Event([
-            (Event.click_long(self.session.translate(self.target_leather.random_point())), None)
+            (Event.click(self.session.translate(self.target_leather.random_point())), None)
         ]))
 
         # Click on 'all' on leather portion
@@ -324,7 +325,6 @@ class Tanner:
                 tanner_pos = self.session.translate(bboxes[0].center())
             else:
                 # Spin camera
-                # bot.drag(*ui.spin_around(self.session))
                 self.session.publish_event(Event([
                     (Event.drag(*ui.spin_around(self.session)), None)
                 ]))

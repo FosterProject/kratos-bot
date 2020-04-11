@@ -20,7 +20,7 @@ from utilities import bank
 
 
 s = Session(0, 0)
-s2 = Session(0, 1)
+# s2 = Session(0, 1)
 
 # screen = grabber.grab(s.screen_bounds, grabber.CHAT_LAST_LINE, "debug/test.png", True)
 
@@ -37,5 +37,6 @@ s2 = Session(0, 1)
 
 
 
-x = s.set_region_threshold(0.6).find_in_region(grabber.MAP, "bot_ref_imgs/tanner/movement/2.png")
-print(x)
+# x = s.set_region_threshold(0.6).find_in_region(grabber.MAP, "bot_ref_imgs/tanner/movement/1.png")
+# x = bank.find_booth(s, "EAST")
+# print(x)

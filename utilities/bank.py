@@ -36,7 +36,10 @@ BANK_BOOTH = {
         "bot_ref_imgs/bank/east_bank_booth_5.png",
         "bot_ref_imgs/bank/east_bank_booth_6.png",
         "bot_ref_imgs/bank/east_bank_booth_7.png",
-        "bot_ref_imgs/bank/east_bank_booth_8.png"
+        "bot_ref_imgs/bank/east_bank_booth_8.png",
+        "bot_ref_imgs/bank/east_bank_booth_9.png",
+        "bot_ref_imgs/bank/east_bank_booth_10.png"
+
     ]
 }
 WITHDRAW_ALL_INACTIVE = "bot_ref_imgs/bank/withdraw_all_inactive.png"

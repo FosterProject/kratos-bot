@@ -3,11 +3,10 @@ import numpy as np
 import time
 
 # Custom library
-import tools.osrs_screen_grab as grabber
-from tools.screen_pos import Pos
 from tools import config
-from tools import bot
-from tools.lib import debug
+from tools.lib import debug as console
+from data import regions
+from tools import client_handler
 
 
 # Image References
@@ -23,13 +22,13 @@ class Step:
 
 
 class Movement:
-    def __init__(self, session, steps):
-        self.session = session
+    def __init__(self, client, steps):
+        self.client = client
         self.steps = steps
         self.current_step = 0
         self.finished = False
 
-        self.last_map = np.array(grabber.grab(session.screen_bounds, grabber.MAP).convert("L"))
+        self.last_map = self.get_map()
         self.is_moving = False
         self.movement_idle_start_time = None
 
@@ -45,7 +44,7 @@ class Movement:
         
         self.is_moving = True
         self.movement_idle_start_time = None
-        return step_pos
+        self.client.click(step_pos)
     
 
     def find_step(self, step):
@@ -54,7 +53,7 @@ class Movement:
         step_pos = None
         while step_pos is None:
             for step_obj in step:
-                step_pos = self.session.set_region_threshold(0.6).find_in_region(grabber.MAP, step_obj)
+                step_pos = self.client.set_threshold(0.6).find(step_obj, regions.MAP)
                 if step_pos is not None:
                     break
 
@@ -62,9 +61,9 @@ class Movement:
 
 
     def check_is_moving(self):
-        debug("Movement - check_is_moving")
+        console("Movement - check_is_moving")
 
-        current_map = np.array(grabber.grab(self.session.screen_bounds, grabber.MAP).convert("L"))
+        current_map = self.get_map()
         res = cv2.matchTemplate(self.last_map, current_map, cv2.TM_CCOEFF_NORMED)
         threshold = 0.9
         loc = np.where(res >= threshold)
@@ -73,18 +72,18 @@ class Movement:
         
         if len(list(zip(*loc[::-1]))) < 1:
             self.movement_idle_start_time = None
-            print("moving")
+            console("Movement - moving")
         else:
-            print("still")
+            console("Movement - still")
             if self.movement_idle_start_time is None:
                 self.movement_idle_start_time = time.time()
             if time.time() - self.movement_idle_start_time >= MOVEMENT_IDLE_TIME_MAX:
-                debug("Movement - NOT MOVING ANYMORE")
+                console("Movement - NOT MOVING ANYMORE")
                 self.is_moving = False
 
 
-
-
+    def get_map(self):
+        return np.array(client_handler.screenshot(self.client.host, regions.MAP).convert("L"))
 
     def reset(self):
         self.current_step = 0

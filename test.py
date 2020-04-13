@@ -11,6 +11,7 @@ from utilities import account
 from utilities import ui
 from utilities import bank
 from utilities import inventory
+from utilities import movement
 from utilities.items import Item
 
 debug.reset_stream()
@@ -23,5 +24,16 @@ c = Client("TEST", clients[0], hosts[0])
 # Test area
 
 # i = Item("bot_ref_imgs/tanner/cowhide_short.png", .15)
+MOVEMENT_TANNER_PATH = [
+    "bot_ref_imgs/tanner/movement/1.png",
+    "bot_ref_imgs/tanner/movement/2.png"
+]
+MOVEMENT_BANK_PATH = [
+    "bot_ref_imgs/tanner/movement/1.png",
+    "bot_ref_imgs/tanner/movement/0.png"   
+]
+tanner_route = movement.Movement(c, MOVEMENT_TANNER_PATH)
+bank_route = movement.Movement(c, MOVEMENT_BANK_PATH)
 
-inventory.click_slot(c, 20)
+
+tanner_route.step()

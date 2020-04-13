@@ -1,20 +1,17 @@
-import cv2
-import numpy as np
-from matplotlib import pyplot as plt
 import time
 import random
 import sys
 
+import cv2
+import numpy as np
+from matplotlib import pyplot as plt
+import win32con
+
 # Custom library
-import tools.osrs_screen_grab as grabber
-from tools.screen_pos import Pos, Box
-from tools import bot
-from tools import config
-from tools import screen_search
 from tools.lib import wait
-from tools.lib import debug
+from tools.lib import debug as console
 from tools.lib import file_name
-from tools.event_manager import Event
+from data import regions
 
 # Reference Images
 BANK_BOOTH = {
@@ -48,118 +45,110 @@ WITHDRAW_X_AMOUNT = "bot_ref_imgs/bank/withdraw_x_amount.png"
 IS_BANK_OPEN = "bot_ref_imgs/bank/is_bank_open.png"
 
 
-def bank_cycle(session, withdraw=[]):
+def bank_cycle(client, facing="NORTH", withdraw=[]):
     # Open bank
-    while not is_bank_open(session):
-        open(session)
+    while not is_bank_open(client):
+        open(client, facing)
         wait(2, 5)
     
     # Bank inventory
-    bank_inventory(session)
+    bank_inventory(client)
     wait(1, 3)
 
     # Withdraw items
     if isinstance(withdraw, list):
         for item in withdraw:
-            withdraw_item(session, item)
+            withdraw_item(client, item)
     else:
-        withdraw_item(session, withdraw)
+        withdraw_item(client, withdraw)
 
     wait(1, 2)
 
     # Close
-    close(session)
+    close(client)
 
 
-def is_select_x_inactive(session):
-    check = session.find_in_region(grabber.BANK, WITHDRAW_X_INACTIVE)
+def is_select_x_inactive(client):
+    check = client.set_threshold(.75).find(WITHDRAW_X_INACTIVE, regions.BANK)
     return check is not None
 
 
-def is_select_all_inactive(session):
-    check = session.find_in_region(grabber.BANK, WITHDRAW_ALL_INACTIVE)
+def is_select_all_inactive(client):
+    check = client.set_threshold(.93).find(WITHDRAW_ALL_INACTIVE, regions.BANK)
     return check is not None
 
 
-def options_select_all(session):
-    if is_select_all_inactive(session):
-        debug("BANK: Selecting 'withdraw all'")
+def options_select_all(client):
+    if is_select_all_inactive(client):
+        console("BANK: Selecting 'withdraw all'")
 
-        # Click withdraw all
-        event = Event([
-            (Event.click(session.translate(grabber.BANK_WITHDRAW_ALL.random_point())), (.5, 1))
-        ])
-
-        session.publish_event(event)
+        client.click(regions.BANK_WITHDRAW_ALL.random_point())
 
 
-def options_select_x(session):
-    if is_select_x_inactive(session):
-        debug("BANK: Selecting 'withdraw x'")
+def options_select_x(client):
+    if is_select_x_inactive(client):
+        console("BANK: Selecting 'withdraw x'")
 
         # Click withdraw x
-        event = Event([
-            (Event.click(session.translate(grabber.BANK_WITHDRAW_X.random_point())), (1, 2))
-        ])
+        client.click(regions.BANK_WITHDRAW_X.random_point())
 
         # Check if amount menu pops up
-        check = session.find_in_client(WITHDRAW_X_AMOUNT)
+        check = client.find(WITHDRAW_X_AMOUNT)
         if check is not None:
-            event.add_action(Event.type_string("14", True), (.5, 1))
-
-        session.publish_event(event)
-
-
-def bank_inventory(session):
-    return session.translate(grabber.BANK_DEPOSIT_INVENTORY.random_point())
+            client.key(0x31)  # 1
+            client.key(0x34)  # 4
+            client.key(win32con.VK_RETURN)
 
 
-def find_item(session, item):
+def bank_inventory(client):
+    client.click(regions.BANK_DEPOSIT_INVENTORY.random_point())
+
+
+def find_item(client, item):
     if item.has_unique_threshold():
-        session.set_region_threshold(item.threshold)
-    return session.find_in_region(grabber.BANK, item.reference)
+        client.set_threshold(item.threshold)
+    return client.find(item.reference, regions.BANK)
 
 
-def withdraw_item(session, item):
-    debug("BANK - withdraw_item: %s" % file_name(item.reference))
-    click_pos = find_item(session, item)
+def withdraw_item(client, item):
+    console("BANK - withdraw_item: %s" % file_name(item.reference))
+    click_pos = find_item(client, item)
     if click_pos is None:
-        debug("BANK - withdraw_item: Couldn't find item [%s]. Item is not in bank view." % file_name(item.reference))
+        console("BANK - withdraw_item: Couldn't find item [%s]. Item is not in bank view." % file_name(item.reference))
         return
     # Already translated due to find_in_region
-    return click_pos
+    client.click(click_pos)
 
 
-def is_bank_open(session):
-    check = session.set_region_threshold(0.6).find_in_region(grabber.BANK, IS_BANK_OPEN)
+def is_bank_open(client):
+    check = client.set_threshold(.6).find(IS_BANK_OPEN, regions.BANK)
     return check is not None
 
 
-def find_booth(session, facing="NORTH"):
+def find_booth(client, facing="NORTH"):
     booth_found = False
     for booth in BANK_BOOTH[facing]:
-        check = session.find_in_client(booth)
+        check = client.set_threshold(.75).find(booth)
         if check is not None:
             booth_found = True
             break
            
     if not booth_found:
-        debug("BANK - find_booth: Couldn't find bank booth in client")
+        console("BANK - find_booth: Couldn't find bank booth in client")
         return None
     
     return check
   
 
-def close(session):
-    debug("BANK - close: Closing the bank")
-    if is_bank_open(session):
-        return session.translate(grabber.BANK_CLOSE.random_point())
-    return None
+def close(client):
+    console("BANK - close: Closing the bank")
+    if is_bank_open(client):
+        client.click(regions.BANK_CLOSE.random_point())
 
 
-def open(session, facing="NORTH"):
-    booth_pos = find_booth(session, facing)
+def open(client, facing="NORTH"):
+    booth_pos = find_booth(client, facing)
     if booth_pos is None:
-        debug("BANK - open: Couldn't open the bank. Script is exiting because you're not in a bank.")
+        console("BANK - open: Couldn't open the bank. Script is exiting because you're not in a bank.")
         sys.exit()
-    return booth_pos
+    client.click(booth_pos)

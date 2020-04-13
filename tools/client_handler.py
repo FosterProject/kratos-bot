@@ -1,4 +1,5 @@
 import time
+import threading
 
 import win32gui
 import win32ui
@@ -92,7 +93,8 @@ def click(client, x, y):
     win32api.PostMessage(client, win32con.WM_LBUTTONUP,
                          win32con.MK_LBUTTON, pos)
 
-
+    
+KEY_LOCK = threading.Lock()
 def keypress(client, key):
     """ Posts a keydown event to the client window.
         This function 'activates' the client window so that it can accept a keyevent.
@@ -102,14 +104,15 @@ def keypress(client, key):
         key {win32con.VK_*} -- The keycode of the key to be sent to the client. (Keycode should only be a constant from the win32con package).
     """
 
-    delay = .05
+    with KEY_LOCK:
+        delay = .1
 
-    win32api.PostMessage(client, win32con.WM_ACTIVATE, win32con.WA_ACTIVE, 0)
-    time.sleep(delay)
-    win32api.PostMessage(client, win32con.WM_KEYDOWN, key, 0)
-    win32api.PostMessage(client, win32con.WM_KEYUP, key, 0)
-    time.sleep(delay)
-    win32api.PostMessage(client, win32con.WM_ACTIVATE, win32con.WA_INACTIVE, 0)
+        win32api.PostMessage(client, win32con.WM_ACTIVATE, win32con.WA_ACTIVE, 0)
+        time.sleep(delay)
+        win32api.PostMessage(client, win32con.WM_KEYDOWN, key, 0)
+        win32api.PostMessage(client, win32con.WM_KEYUP, key, 0)
+        time.sleep(delay)
+        win32api.PostMessage(client, win32con.WM_ACTIVATE, win32con.WA_INACTIVE, 0)
 
 
 def default_host_size(host):
@@ -130,14 +133,14 @@ def default_host_size(host):
 def screenshot(host, region=None, save=False, file_path=""):
     """ Takes a screenshot of a host window and crops it down to the client view.
         Returns the PIL.img variable or saves it to a file.
-    
+
     Arguments:
         host {int} -- The int value returned from a FindWindow win32gui call.
-    
+
     Keyword Arguments:
         save {bool} -- The flag to trigger a save action or not. (default: {False})
         file_path {str} -- The filepath to save the file to. (default: {"temp"})
-    
+
     Returns:
         PIL.img OR None -- The img file if save=True.
     """
@@ -147,7 +150,7 @@ def screenshot(host, region=None, save=False, file_path=""):
     h = bot - top
 
     hwndDC = win32gui.GetWindowDC(host)
-    mfcDC  = win32ui.CreateDCFromHandle(hwndDC)
+    mfcDC = win32ui.CreateDCFromHandle(hwndDC)
     saveDC = mfcDC.CreateCompatibleDC()
 
     saveBitMap = win32ui.CreateBitmap()
@@ -172,7 +175,8 @@ def screenshot(host, region=None, save=False, file_path=""):
 
     # PrintWindow Succeeded
     if result == 1:
-        im = im.crop((2, 42, DEFAULT_CLIENT_SIZE_W + 2, DEFAULT_CLIENT_SIZE_H + 42))
+        im = im.crop((2, 42, DEFAULT_CLIENT_SIZE_W +
+                      2, DEFAULT_CLIENT_SIZE_H + 42))
         if region is not None:
             im = im.crop((region.tl.x, region.tl.y, region.br.x, region.br.y))
         if save:
@@ -181,20 +185,3 @@ def screenshot(host, region=None, save=False, file_path=""):
             return None
         else:
             return im
-
-
-if __name__ == "__main__":
-    debug.reset_stream()
-
-    clients, hosts = get_clients()
-    print(clients)
-
-    from data import regions
-
-    for h in hosts:
-        screenshot(h, regions.BANK, save=True)
-        # default_host_size(h)
-
-
-    # for c in clients:
-    #     keypress(c, win32con.VK_RETURN)

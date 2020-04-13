@@ -1,21 +1,14 @@
-import numpy as np
-import random
-import time
+import win32con
 
 # Custom library
-from tools.screen_pos import Pos, Box
-from tools.lib import debug
+from data import regions
+from debug import debug
+from tools.lib import debug as console
 from tools.lib import wait
-from tools import osrs_screen_grab as grabber
-from tools import screen_search
-from tools import bot
-from tools.event_manager import EventManager, Event
 
 # Utilities
 from utilities import ui
 
-# Event Manager
-EM = EventManager.get_instance()
 
 # Images
 LOGOUT_CHECK = "bot_ref_imgs/account/logout_check.png"
@@ -24,59 +17,56 @@ CONNECTING_CHECK = "bot_ref_imgs/account/connecting_check.png"
 LOGOUT_INACTIVE = "bot_ref_imgs/account/logout_inactive.png"
 
 
-def is_logged_out(session):
-    check = session.find_in_client(LOGOUT_CHECK)
+def is_logged_out(client):
+    check = client.find(LOGOUT_CHECK)
     return check is not None
 
 
-def is_in_lobby(session):
-    check = session.find_in_client(TAP_TO_PLAY)
+def is_in_lobby(client):
+    check = client.find(TAP_TO_PLAY)
     return check is not None
 
 
-def is_connecting(session):
-    check = session.find_in_client(CONNECTING_CHECK)
+def is_connecting(client):
+    check = client.find(CONNECTING_CHECK)
     return check is None
 
 
-def login(session):
-    if not is_logged_out(session):
-        debug("Account: Already logged in")
+def login(client):
+    if not is_logged_out(client):
+        console("Client [%s] already logged in" % client.name)
         return
 
-    debug("Logging in...")
+    client.info("Logging in")
 
-    # Click login
-    Event.basic_click(session, session.translate(grabber.LOGIN_BUTTON.random_point()))
+    # Send login action
+    client.key(win32con.VK_RETURN)
 
     # Enter game
-    while not is_in_lobby(session):
+    while not is_in_lobby(client):
         wait(1.5, 2)
         # If connection failed
-        if not is_connecting(session):
+        if not is_connecting(client):
             # Log in again
-            Event.basic_click(session, session.translate(grabber.LOGIN_BUTTON.random_point()))
+            client.key(win32con.VK_RETURN)
     
     # Enter through lobby
-    Event.basic_click(session, session.translate(grabber.LOBBY_BUTTON.random_point()))
+    client.click(regions.LOBBY_BUTTON.random_point())
 
 
-def logout(session):
-    if is_logged_out(session):
-        debug("Account: Already logged out you plum")
+def logout(client):
+    if is_logged_out(client):
+        console("Client [%s] already logged out" % client.name)
         return
 
-    # Event
-    event = Event()
+    client.info("Logging out")
 
-    click_pos = session.find_in_client(LOGOUT_INACTIVE)
+    click_pos = client.set_threshold(.8).find(LOGOUT_INACTIVE)
     if click_pos is not None:
-        debug("Account: Opening logout tab")
-        tab_pos = ui.open_tab(session, "RIGHT", 6)
-        event.add_action(Event.click(tab_pos), (.5, 1))
+        console("Account: Opening logout tab")
+        ui.open_tab(client, "RIGHT", 6)
+        
+    wait(.8, 1.4)
 
     # Click logout button
-    logout_pos = session.translate(grabber.LOGOUT_BUTTON.random_point())
-    event.add_action(Event.click(logout_pos), (.5, 1))
-
-    session.publish_event(event)
+    client.click(regions.LOGOUT_BUTTON.random_point())

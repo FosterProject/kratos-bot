@@ -17,3 +17,7 @@ BAR_LEFT_TOP = Box(Pos(6, 197), Pos(31, 234))
 LOGOUT_BUTTON = Box(Pos(676, 413), Pos(800, 436))
 TAP_OPTION = Box(Pos(5, 171), Pos(31, 187))
 COMPASS = Box(Pos(708, 9), Pos(730, 33))
+
+# Inventory
+INVENTORY = Box(Pos(646, 203), Pos(831, 458))
+INVENTORY_ITEM_FIRST_POS = Pos(662, 211)

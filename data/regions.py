@@ -15,9 +15,10 @@ BANK_CLOSE = Box(Pos(581, 160), Pos(597, 176))
 BAR_RIGHT_TOP = Box(Pos(844, 197), Pos(869, 234))
 BAR_LEFT_TOP = Box(Pos(6, 197), Pos(31, 234))
 LOGOUT_BUTTON = Box(Pos(676, 413), Pos(800, 436))
-TAP_OPTION = Box(Pos(5, 171), Pos(31, 187))
+TAP_OPTION = Box(Pos(7, 173), Pos(31, 187))
 COMPASS = Box(Pos(708, 9), Pos(730, 33))
 MAP = Box(Pos(722, 9), Pos(868, 156))
+RUN_ORB = Box(Pos(708, 118), Pos(726, 134))
 
 # Inventory
 INVENTORY = Box(Pos(646, 203), Pos(831, 458))

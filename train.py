@@ -11,7 +11,7 @@ options = {
     "epoch": 1000,
     "gpu": 1.0,
     "train": True,
-    # "load": -1,
+    "load": -1,
     # "labels": "./classes.txt",
     "annotation": "./RAW_DATA/annotations/",
     "dataset": "./RAW_DATA/"

@@ -4,16 +4,14 @@ import time
 
 import keyboard
 
+from debug import debug
 from tools import config
-from tools.session import Session
 from tools.lib import wait
+from tools import client_handler
+from tools.client import Client
 
 config.DEBUG = True
-
-# Event Manager
-from tools.event_manager import EventManager
-EM = EventManager.get_instance()
-
+debug.reset_stream()
 
 # Constants
 EXIT_FLAG = False
@@ -22,54 +20,36 @@ def stop():
     EXIT_FLAG = True
 
 
-bot_count = 1
-# Arg parsing
-if len(sys.argv) == 2:
-    bot_count = int(sys.argv[1])
-    if 1 > bot_count > 4:
-        print("Error: bot count must be between 1 and 4")
-        sys.exit()
-
-
-# Sessions
-sessions = []
-for i in range(0, bot_count):
-    sessions.append(Session(*config.BOTS[i]))
-
-
 def exit_bot(bot):
-    bot["bot"].session.exit()
+    print("==== SHUTTING DOWN BOT [%s] ====" % bot["bot"].name)
+    bot["bot"].client.exit()
     bot["thread"].join()
 
 
 # Define bots
 from bots import tanner
+bot_clients = client_handler.get_clients()
 bots = []
-for s in sessions:
-    bots.append({"bot": tanner.Tanner(s, tanner.TAN_SOFT_LEATHER), "thread": None})
-
-keyboard.on_press_key('esc', lambda event: stop())
-for i in range(0, bot_count):
-    keyboard.on_press_key('f%s' % str(i + 1), lambda event: exit_bot(bots[i]))
+for name, client, host in bot_clients:
+    client_handler.default_host_size(host)
+    bots.append({"bot": tanner.Tanner(Client(name, client, host), tanner.TAN_SOFT_LEATHER), "thread": None})
 
 # Run bots
 for bot in bots:
     thread = threading.Thread(target=bot["bot"].run)
     bot["thread"] = thread
     thread.start()
+    time.sleep(30)
+    print("==== WAITING 30 SECS TO START NEXT BOT ====")
 
 try:
     while True:
-        if EXIT_FLAG:
-            print("Shutting down Kratos-bot")
-            break
-        EM.process_event()
-        time.sleep(.15)
+        pass
 except KeyboardInterrupt:
-    pass
+    stop()
 
 # Exit threads and bots
 print("Shutting down bots... waiting for them to finish their loop")
 for bot in bots:
-    bot["bot"].session.exit()
+    bot["bot"].client.exit()
     bot["thread"].join()

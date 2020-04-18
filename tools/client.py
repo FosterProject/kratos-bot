@@ -10,6 +10,7 @@ from tools.lib import file_name
 from tools.screen_pos import Pos, Box
 from tools import config
 from debug import debug
+from tools.lib import debug as console
 
 
 class Client:
@@ -35,11 +36,11 @@ class Client:
         handler.click(self.client, pos.x, pos.y)
 
     def key(self, key):
-        handler.keypress(self.client, key)
+        handler.keypress(self.client, self.host, key)
 
     # UI search
 
-    def find(self, item_ref, region=None):
+    def find(self, item_ref, region=None, return_box=False):
         screen = handler.screenshot(self.host, region)
         _ = np.array(screen)
         screen = np.array(screen.convert("L"))
@@ -51,7 +52,7 @@ class Client:
         if maxpos[1] < self.threshold:
             maxpos = maxpos[3]
             cv2.rectangle(
-                _, maxpos, (maxpos[0] + w, maxpos[1] + h), (25, 0, 255), 2)
+                _, maxpos, (maxpos[0] + w, maxpos[1] + h), (25, 0, 255), 1)
             cv2.imwrite('debug/%s/fail_region_%s.png' %
                         (self.name, file_name(item_ref)), _)
             return None
@@ -61,47 +62,24 @@ class Client:
 
         if config.DEBUG:
             cv2.rectangle(
-                _, maxpos, (maxpos[0] + w, maxpos[1] + h), (25, 0, 255), 2)
+                _, maxpos, (maxpos[0] + w, maxpos[1] + h), (25, 0, 255), 1)
             cv2.imwrite('debug/%s/region_%s.png' %
                         (self.name, file_name(item_ref)), _)
 
         pnt = Box(
             Pos(*maxpos),
             Pos(maxpos[0] + w, maxpos[1] + h)
-        ).random_point()
+        )
+        if return_box:
+            if region is not None:
+                pnt.tl.add(region.tl)
+                pnt.br.add(region.tl)
+            return pnt
+        pnt = pnt.random_point()
         if region is not None:
             pnt.add(region.tl)
 
         return pnt
-
-    def find_in_client(self, item_ref):
-        screen = grabber.grab(self.screen_bounds)
-        _ = np.array(screen)
-        screen = np.array(screen.convert("L"))
-        template = cv2.imread(item_ref, 0)
-        w, h = template.shape[::-1]
-
-        res = cv2.matchTemplate(screen, template, cv2.TM_CCOEFF_NORMED)
-        maxpos = cv2.minMaxLoc(res)
-        if maxpos[1] < self.client_threshold:
-            cv2.imwrite('debug/client%s%s/fail_client_%s.png' %
-                        (self.row, self.col, file_name(item_ref)), _)
-            debug("CLIENT_SEARCH_ERROR: %s" % item_ref)
-            return None
-
-        self.reset_client_threshold()
-        maxpos = cv2.minMaxLoc(res)[3]
-
-        if config.DEBUG:
-            cv2.rectangle(
-                _, maxpos, (maxpos[0] + w, maxpos[1] + h), (25, 0, 255), 1)
-            cv2.imwrite('debug/client%s%s/client_%s.png' %
-                        (self.row, self.col, file_name(item_ref)), _)
-
-        return self.translate(Box(
-            Pos(*maxpos),
-            Pos(maxpos[0] + w, maxpos[1] + h)
-        ).random_point())
 
     def set_threshold(self, threshold):
         self.threshold = threshold
@@ -117,6 +95,9 @@ class Client:
 
     def warn(self, msg):
         debug.warn("[%s] - %s" % (self.name, msg))
+    
+    def log(self, msg):
+        console("[%s] - %s" % (self.name, msg))
 
     # Thread management
 

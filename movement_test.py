@@ -22,12 +22,11 @@ config.DEBUG = True
 clients = client_handler.get_clients()
 
 name, client, host = clients[0]
-# name2, client2, host2 = clients[1]
 c = Client(name, client, host)
-# c2 = Client(name2, client2, host2)
 
-# Test area
 
+# def walk(x, y):
+    
 kharid = [
     [Pos(18, 3), None, None, Pos(30, 3)],
     [Pos(18, 7), None, None, Pos(30, 7)],
@@ -44,38 +43,26 @@ kharid = [
     [Pos(18, 50), None, Pos(26, 50), None]
 ]
 
-def find_pos(pos):
-    y = 0
-    for row in kharid:
-        y += 1
-        x = 0
-        for item in row:
-            x += 1
-            if item is None:
-                continue
-            if pos.x == item.x and pos.y == item.y:
-                return Pos(x, y)
-    return None
-
-
+# Test area
 center_x = 795
 center_y = 83
-while True:
-    bank_pos = c.find("al_kharid_bank.png", regions.MAP, True)
-    if bank_pos is None:
-        print("Can't find bank")
-    else:
-        # check = bank_pos.contains(Pos(center_x, center_y))
-        # print(check)
+client_handler.click(client, 795, 83)
 
-        x = center_x - bank_pos.tl.x
-        y = center_y - bank_pos.tl.y
-        check = find_pos(Pos(x, y))
-        if check is None:
-            print("Not in bank")
-        else:
-            print(check)
-    time.sleep(.5)
+# x
+# 794 1 tile left
+# 795 - 797 nothing
+# 798 - 801 - 1 -- 3
+# 802 - 806 - 2 -- 4
+# 807 - 809 - 3 -- 5
+# 810 - 813 - 4 -- 3
+# 814 - 817 - 5 -- 3
+# 818 - 821 - 6 -- 3
+# 822
 
-# from bots import tanner
-# bot = tanner.Tanner(c, tanner.TAN_SOFT_LEATHER)
+# y
+# 82 break point
+# 83 - 86 nothing
+# 87 - 90 1 tile down -- 89
+# 91 - 94 2 tile down
+# 95 - 98 3 tile
+# 99 - 102

@@ -13,6 +13,9 @@ from tools.lib import debug as console
 from tools.lib import file_name
 from data import regions
 
+# Utilities
+from utilities import ui
+
 # Reference Images
 BANK_BOOTH = {
     "NORTH": [
@@ -35,8 +38,9 @@ BANK_BOOTH = {
         "bot_ref_imgs/bank/east_bank_booth_7.png",
         "bot_ref_imgs/bank/east_bank_booth_8.png",
         "bot_ref_imgs/bank/east_bank_booth_9.png",
-        "bot_ref_imgs/bank/east_bank_booth_10.png"
-
+        "bot_ref_imgs/bank/east_bank_booth_10.png",
+        "bot_ref_imgs/bank/east_bank_booth_11.png",
+        "bot_ref_imgs/bank/east_bank_booth_12.png"
     ]
 }
 WITHDRAW_ALL_INACTIVE = "bot_ref_imgs/bank/withdraw_all_inactive.png"
@@ -147,8 +151,16 @@ def close(client):
 
 
 def open(client, facing="NORTH"):
-    booth_pos = find_booth(client, facing)
-    if booth_pos is None:
-        console("BANK - open: Couldn't open the bank. Script is exiting because you're not in a bank.")
-        sys.exit()
+    attempts = 0
+    booth_pos = None
+    while booth_pos is None:
+        if attempts >= 3:
+            client.log("BANK - open: Couldn't open the bank. Script is exiting because you're not in a bank.")
+            sys.exit()
+        attempts += 1
+        booth_pos = find_booth(client, facing)
+        if booth_pos is None:
+            ui.click_compass(client)
+            wait(.3, .5)
+        
     client.click(booth_pos)

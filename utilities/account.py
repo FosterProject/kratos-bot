@@ -47,6 +47,7 @@ def login(client):
         wait(1.5, 2)
         # If connection failed
         if not is_connecting(client):
+            client.log("Attempting to log in again...")
             # Log in again
             client.key(win32con.VK_RETURN)
     

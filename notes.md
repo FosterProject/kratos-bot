@@ -23,6 +23,7 @@
     - To restart from last checkpoint, add `--load -1` to the previous command.
 - Test: `python flow --model .\cfg\yolo-kratos.cfg --imgdir .\RAW_TEST_DATA\ --labels .\classes.txt --load -1 --gpu 1.0`
 
+- Saving to a .pb file: `python .\flow --model .\cfg\yolo-kratos.cfg --load -1 --savepb`
 
 ## Training Notes
 

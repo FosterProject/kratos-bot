@@ -18,7 +18,7 @@ REGISTERED_CLIENTS = [
     "BlueStacks",
     "OSRS #2",
     "OSRS #3",
-    "OSRS #4"
+    # "OSRS #4"
 ]
 # USER DEFINED: The default size of the host window
 DEFAULT_HOST_SIZE_W = 880
@@ -35,7 +35,6 @@ def get_clients():
         array -- The array of win32 client codes.
     """
 
-    hosts = []
     clients = []
 
     for client in REGISTERED_CLIENTS:
@@ -44,9 +43,8 @@ def get_clients():
             debug.warn("Couldn't find registered client: %s" % client)
             continue
         game_window = win32gui.GetWindow(host, win32con.GW_CHILD)
-        clients.append(game_window)
-        hosts.append(host)
-    return clients, hosts
+        clients.append((client, game_window, host))
+    return clients
 
 
 def get_client_position(client):
@@ -77,6 +75,7 @@ def get_client_dimensions(client):
     return {"w": rect[2] - rect[0], "h": rect[3] - rect[1]}
 
 
+CLICK_LOCK = threading.Lock()
 def click(client, x, y):
     """ Posts a click event to the client window.
 
@@ -86,16 +85,19 @@ def click(client, x, y):
         y {int} -- The y position.
     """
 
-    pos = win32api.MAKELONG(x, y)
+    with CLICK_LOCK:
+        pos = win32api.MAKELONG(x, y)
 
-    win32api.PostMessage(client, win32con.WM_LBUTTONDOWN,
-                         win32con.MK_LBUTTON, pos)
-    win32api.PostMessage(client, win32con.WM_LBUTTONUP,
-                         win32con.MK_LBUTTON, pos)
+        win32api.PostMessage(client, win32con.WM_LBUTTONDOWN,
+                            win32con.MK_LBUTTON, pos)
+        time.sleep(.02)
+        win32api.PostMessage(client, win32con.WM_LBUTTONUP,
+                            win32con.MK_LBUTTON, pos)
+        time.sleep(.05)
 
     
 KEY_LOCK = threading.Lock()
-def keypress(client, key):
+def keypress(client, host, key):
     """ Posts a keydown event to the client window.
         This function 'activates' the client window so that it can accept a keyevent.
 
@@ -105,14 +107,16 @@ def keypress(client, key):
     """
 
     with KEY_LOCK:
-        delay = .1
+        delay = .15
 
-        win32api.PostMessage(client, win32con.WM_ACTIVATE, win32con.WA_ACTIVE, 0)
+        win32api.PostMessage(host, win32con.WM_ACTIVATE, win32con.WA_ACTIVE, 0)
         time.sleep(delay)
         win32api.PostMessage(client, win32con.WM_KEYDOWN, key, 0)
+        time.sleep(.05)
         win32api.PostMessage(client, win32con.WM_KEYUP, key, 0)
         time.sleep(delay)
-        win32api.PostMessage(client, win32con.WM_ACTIVATE, win32con.WA_INACTIVE, 0)
+        win32api.PostMessage(host, win32con.WM_ACTIVATE, win32con.WA_INACTIVE, 0)
+        time.sleep(delay)
 
 
 def default_host_size(host):
@@ -130,6 +134,7 @@ def default_host_size(host):
                         DEFAULT_HOST_SIZE_H, True)
 
 
+SCREENSHOT_LOCK = threading.Lock()
 def screenshot(host, region=None, save=False, file_path=""):
     """ Takes a screenshot of a host window and crops it down to the client view.
         Returns the PIL.img variable or saves it to a file.
@@ -145,43 +150,44 @@ def screenshot(host, region=None, save=False, file_path=""):
         PIL.img OR None -- The img file if save=True.
     """
 
-    left, top, right, bot = win32gui.GetWindowRect(host)
-    w = right - left
-    h = bot - top
+    with SCREENSHOT_LOCK:
+        left, top, right, bot = win32gui.GetWindowRect(host)
+        w = right - left
+        h = bot - top
 
-    hwndDC = win32gui.GetWindowDC(host)
-    mfcDC = win32ui.CreateDCFromHandle(hwndDC)
-    saveDC = mfcDC.CreateCompatibleDC()
+        hwndDC = win32gui.GetWindowDC(host)
+        mfcDC = win32ui.CreateDCFromHandle(hwndDC)
+        saveDC = mfcDC.CreateCompatibleDC()
 
-    saveBitMap = win32ui.CreateBitmap()
-    saveBitMap.CreateCompatibleBitmap(mfcDC, w, h)
+        saveBitMap = win32ui.CreateBitmap()
+        saveBitMap.CreateCompatibleBitmap(mfcDC, w, h)
 
-    saveDC.SelectObject(saveBitMap)
+        saveDC.SelectObject(saveBitMap)
 
-    result = windll.user32.PrintWindow(host, saveDC.GetSafeHdc(), 0)
+        result = windll.user32.PrintWindow(host, saveDC.GetSafeHdc(), 0)
 
-    bmpinfo = saveBitMap.GetInfo()
-    bmpstr = saveBitMap.GetBitmapBits(True)
+        bmpinfo = saveBitMap.GetInfo()
+        bmpstr = saveBitMap.GetBitmapBits(True)
 
-    im = Image.frombuffer(
-        'RGB',
-        (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
-        bmpstr, 'raw', 'BGRX', 0, 1)
+        im = Image.frombuffer(
+            'RGB',
+            (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
+            bmpstr, 'raw', 'BGRX', 0, 1)
 
-    win32gui.DeleteObject(saveBitMap.GetHandle())
-    saveDC.DeleteDC()
-    mfcDC.DeleteDC()
-    win32gui.ReleaseDC(host, hwndDC)
+        win32gui.DeleteObject(saveBitMap.GetHandle())
+        saveDC.DeleteDC()
+        mfcDC.DeleteDC()
+        win32gui.ReleaseDC(host, hwndDC)
 
-    # PrintWindow Succeeded
-    if result == 1:
-        im = im.crop((2, 42, DEFAULT_CLIENT_SIZE_W +
-                      2, DEFAULT_CLIENT_SIZE_H + 42))
-        if region is not None:
-            im = im.crop((region.tl.x, region.tl.y, region.br.x, region.br.y))
-        if save:
-            loc = "%s_temp" % host if file_path == "" else file_path
-            im.save("%s.png" % loc)
-            return None
-        else:
-            return im
+        # PrintWindow Succeeded
+        if result == 1:
+            im = im.crop((2, 42, DEFAULT_CLIENT_SIZE_W +
+                        2, DEFAULT_CLIENT_SIZE_H + 42))
+            if region is not None:
+                im = im.crop((region.tl.x, region.tl.y, region.br.x, region.br.y))
+            if save:
+                loc = "%s_temp" % host if file_path == "" else file_path
+                im.save("%s.png" % loc)
+                return None
+            else:
+                return im

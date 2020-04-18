@@ -20,9 +20,17 @@ def error(error_message):
     print("Kratos-bot - ERROR >> %s" % error_message)
 
 
+def pos_dist(pos1, pos2):
+    x = abs(pos1.x - pos2.x)
+    y = abs(pos1.y - pos2.y)
+    if x < y:
+        return (14 * x) + (10 * (y - x))
+    else:
+        return (14 * y) + (10 * (x - y))
+
+
 def wait(min, max):
     length = random.uniform(min, max)
-    debug(">>>> Sleeping for: %s" % round(random.uniform(min, max), 2))
     time.sleep(length)
 
 

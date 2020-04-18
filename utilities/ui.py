@@ -23,6 +23,7 @@ INVENTORY_ICON_ACTIVE = "bot_ref_imgs/ui/inv_icon_active.png"
 INVENTORY_FULL = "bot_ref_imgs/ui/inventory_full.png"
 
 RUN_FULL = "bot_ref_imgs/ui/full_run.png"
+TAP_OPTION_ON = "bot_ref_imgs/ui/tap_option_on.png"
 
 
 def open_tab(client, side, item):
@@ -37,13 +38,29 @@ def open_tab(client, side, item):
     client.click(tab_bounds.random_point())
 
 
-def click_tap_option(client):
-    client.click(regions.TAP_OPTION.random_point())
+def click_tap_option(client, on):
+    check = client.set_threshold(.9999).find(TAP_OPTION_ON, regions.TAP_OPTION)
+    if on:
+        while check == None:
+            client.click(regions.TAP_OPTION.random_point())
+            wait(.8, .9)
+            check = client.set_threshold(.9999).find(TAP_OPTION_ON, regions.TAP_OPTION)
+    else:
+        while check != None:
+            client.click(regions.TAP_OPTION.random_point())
+            wait(.8, .9)
+            check = client.set_threshold(.9999).find(TAP_OPTION_ON, regions.TAP_OPTION)
+            
+
+
 
 
 def inventory_full(client):
     return client.find(INVENTORY_FULL) is not None
 
+
+def click_run_orb(client):
+    client.click(regions.RUN_ORB.random_point())
 
 def run_full(client):
     return client.set_threshold(.8).find(RUN_FULL) is not None

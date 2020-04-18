@@ -56,15 +56,22 @@ class Box:
     def __init__(self, tl, br):
         self.tl = tl
         self.br = br
-        self.width = br.x - tl.x
-        self.height = br.y - tl.y
+        self.width = None
+        self.width = None
+        self.calc_w_h()
         self.random_bound_restriction = 0.01
 
+
+    def calc_w_h(self):
+        self.width = self.br.x - self.tl.x
+        self.height = self.br.y - self.tl.y
 
     def set_random_bound_restriction(self, val):
         self.random_bound_restriction = val
         return self
 
+    def contains(self, pnt):
+        return ((self.tl.x < pnt.x < self.br.x) and (self.tl.y < pnt.y < self.br.y))
 
     def subdivision(self, b1):
         new = copy.deepcopy(self)
@@ -74,8 +81,8 @@ class Box:
 
     def center(self):
         return Pos(
-            self.tl.x + (self.width / 2),
-            self.tl.y + (self.height / 2)
+            int(self.tl.x + (self.width / 2)),
+            int(self.tl.y + (self.height / 2))
         )
 
 
@@ -90,9 +97,14 @@ class Box:
 
 
     def random_point(self):
+        self.calc_w_h()
         width_weight = self.width / 5
         height_weight = self.height / 5
         return Pos(
             random.randint(int(self.tl.x + width_weight), int(self.br.x - width_weight)),
             random.randint(int(self.tl.y + height_weight), int(self.br.y - height_weight))
         )
+    
+
+    def __str__(self):
+        return "Box(tl(x: %s, y: %s)), br(x: %s, y: %s))" % (self.tl.x, self.tl.y, self.br.x, self.br.y)

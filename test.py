@@ -14,17 +14,16 @@ from utilities import bank
 from utilities import inventory
 from utilities import movement
 from utilities.items import Item
-
+from utilities.map import Map
 
 debug.reset_stream()
 config.DEBUG = True
 
 clients = client_handler.get_clients()
-
 name, client, host = clients[0]
-# name2, client2, host2 = clients[1]
 c = Client(name, client, host)
-# c2 = Client(name2, client2, host2)
+
+client_handler.default_host_size(host)
 
 # Test area
 
@@ -58,24 +57,60 @@ def find_pos(pos):
     return None
 
 
-center_x = 795
-center_y = 83
-while True:
-    bank_pos = c.find("al_kharid_bank.png", regions.MAP, True)
-    if bank_pos is None:
-        print("Can't find bank")
-    else:
-        # check = bank_pos.contains(Pos(center_x, center_y))
-        # print(check)
+IMG_PATH = "tanner_path_bitmap.png"
+map = Map(IMG_PATH, host)
 
-        x = center_x - bank_pos.tl.x
-        y = center_y - bank_pos.tl.y
-        check = find_pos(Pos(x, y))
-        if check is None:
-            print("Not in bank")
-        else:
-            print(check)
-    time.sleep(.5)
+bank_pos = c.find("al_kharid_bank.png", regions.MAP, True)
+if bank_pos is None:
+    print("Can't find bank")
+    exit()
+
+x = Map.CENTER.x - bank_pos.tl.x
+y = Map.CENTER.y - bank_pos.tl.y
+check = find_pos(Pos(x, y))
+if check is None:
+    print("Not in bank")
+    exit()
+
+
+start_tile = map.translate_goal_region_pos_to_grid("A", check)
+map.set_start_tile(start_tile)
+map.set_end_tile(map.get_random_goal_tile("B"))
+
+map.build_path()
+map.split_path()
+map.print()
+
+
+while not map.finished_route:
+    map.move_to_next_checkpoint(client)
+    while map.is_moving:
+        map.check_is_moving(host)
+        time.sleep(.5)
+map.reset_map()
+
+print("done")
+
+
+
+
+
+# while True:
+#     bank_pos = c.find("al_kharid_bank.png", regions.MAP, True)
+#     if bank_pos is None:
+#         print("Can't find bank")
+#     else:
+#         # check = bank_pos.contains(Pos(center_x, center_y))
+#         # print(check)
+
+#         x = Map.CENTER.x - bank_pos.tl.x
+#         y = Map.CENTER.y - bank_pos.tl.y
+#         check = find_pos(Pos(x, y))
+#         if check is None:
+#             print("Not in bank")
+#         else:
+#             print(check)
+#     time.sleep(.5)
 
 # from bots import tanner
 # bot = tanner.Tanner(c, tanner.TAN_SOFT_LEATHER)

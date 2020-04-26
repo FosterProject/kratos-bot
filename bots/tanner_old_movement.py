@@ -17,15 +17,8 @@ from tools.screen_pos import Pos, Box
 from tools.lib import wait
 from tools.lib import debug as console
 from tools.lib import translate_predictions
-from tools import client_handler
-
-# Data
 from data import regions
-from data.movement_references import AL_KHARID_TANNER_PATH
-from data.movement_references import AL_KHARID_BANK_IMAGE
-from data.movement_references import TANNER_BUILDING_IMAGE
-from data.movement_references import AL_KHARID_BANK_GRID
-from data.movement_references import AL_KHARID_TANNER_GRID
+from tools import client_handler
 
 # Utilities
 from utilities import account
@@ -33,7 +26,7 @@ from utilities import ui
 from utilities import bank
 from utilities import inventory
 from utilities.items import Item
-from utilities.map import Map
+from utilities.movement import Movement
 
 
 # Image References
@@ -48,25 +41,20 @@ TAN_OPTION_BOX = "bot_ref_imgs/tanner/tan_option_box.png"
 TAN_ALL = "bot_ref_imgs/tanner/all.png"
 TANNER_OPEN = "bot_ref_imgs/tanner/tanner_open.png"
 
+# Movement Images
+MOVEMENT_TANNER_PATH = [
+    "bot_ref_imgs/tanner/movement/1.png",
+    "bot_ref_imgs/tanner/movement/2.png"
+]
+MOVEMENT_BANK_PATH = [
+    "bot_ref_imgs/tanner/movement/1.png",
+    "bot_ref_imgs/tanner/movement/0.png"
+]
+
 # Positions (Unique to bot so not in grabber)
 TANNING_INTERFACE = Box(Pos(130, 169), Pos(605, 461))
 TAN_SOFT_LEATHER = Box(Pos(176, 231), Pos(228, 267))
 
-# Movement
-MOVEMENT = {
-    "A": {
-        "start_reference_image": TANNER_BUILDING_IMAGE,
-        "start_reference_grid": AL_KHARID_TANNER_GRID,
-        "starting_goal": "B"
-    },
-    "B": {
-        "start_reference_image": AL_KHARID_BANK_IMAGE,
-        "start_reference_grid": AL_KHARID_BANK_GRID,
-        "starting_goal": "A"
-    }
-}
-MOVE_TO_BANK = "A"
-MOVE_TO_TANNER = "B"
 
 # Load Darkflow
 TFNET_OPTIONS = {
@@ -85,7 +73,8 @@ class Tanner:
         self.target_leather = target_leather
 
         # Movement
-        self.map = Map(AL_KHARID_TANNER_PATH, self.client.host)
+        self.tanner_route = Movement(client, MOVEMENT_TANNER_PATH)
+        self.bank_route = Movement(client, MOVEMENT_BANK_PATH)
 
         # Login timers
         self.min_login_time = 15 * 60
@@ -111,7 +100,10 @@ class Tanner:
         ui.click_compass(self.client)
         wait(.8, 1.1)
 
-        # Check to see if started in al kharid bank
+        # At bank check
+        if bank.find_booth(self.client, "EAST") is None:
+            self.client.log("Kratos-Bot >> Please start this bot in Al Kharid bank")
+            sys.exit()
 
         # Open bank and empty inventory
         self.bank_inventory()
@@ -171,11 +163,7 @@ class Tanner:
 
             # Move to tanner
             self.client.info("Moving to Tanner")
-            move_result = self.move(MOVE_TO_TANNER)
-            if move_result == False:
-                self.client.log("Failed to execute move to tanner routine")
-                sys.exit()
-            wait(.6, .9)
+            self.move(self.tanner_route)
 
             # Enable compass & two-step click
             ui.click_compass(self.client)
@@ -203,11 +191,8 @@ class Tanner:
 
             # Move to bank
             self.client.info("Moving to Bank")
-            move_result = self.move(MOVE_TO_BANK)
-            if move_result == False:
-                self.client.log("Failed to execute move to bank routine")
-                sys.exit()
-            wait(.6, .9)
+            self.move(self.bank_route)
+            wait(1.2, 1.8)
 
             # Click compass
             ui.click_compass(self.client)
@@ -237,45 +222,30 @@ class Tanner:
                 # Startup
                 self.startup()
 
-    def move(self, goal):
-        while True:
-            local_pos = self.client.set_threshold(.45).find(MOVEMENT[goal]["start_reference_image"], regions.MAP, True)
-            while local_pos is None:
-                self.client.log("Attempting to pinpoint starting tile")
-                local_pos = self.client.set_threshold(.45).find(MOVEMENT[goal]["start_reference_image"], regions.MAP, True)
-                wait(.3, .5)
-            x = Map.CENTER.x - local_pos.tl.x
-            y = Map.CENTER.y - local_pos.tl.y
-            check = Map.find_pos_in_local_grid(Pos(x, y), MOVEMENT[goal]["start_reference_grid"])
-            if check is None:
-                self.client.log("Movement - Not in expected starting tile, can't build")
-                return False
-            
-            print(check)
-
-            start_tile = self.map.translate_goal_region_pos_to_grid(MOVEMENT[goal]["starting_goal"], check)
-            print(start_tile)
-            self.map.set_start_tile(start_tile)
-            self.map.set_end_tile(self.map.get_random_goal_tile(goal))
-            print(self.map.end_tile)
-
-            self.map.build_path()
-            self.map.split_path()
-            self.map.print()  # Debug
-
-            while not self.map.finished_route:
-                self.map.move_to_next_checkpoint(self.client.client)
-                while self.map.is_moving:
-                    self.map.check_is_moving(self.client.host)
-                    wait(.3, .5)
-            self.map.reset_map()
-            return True
+    def move(self, route):
+        while not route.finished:
+            route.step()
+            while route.is_moving:
+                route.check_is_moving()
+                wait(.2, .5)
+        route.reset()
 
     def bank_inventory(self):
         # Open bank
         if not bank.is_bank_open(self.client):
-            bank.open(self.client)
+            bank.open(self.client, "EAST")
             wait(1.5, 2.5)
+
+        idle_time = time.time()
+        while not bank.is_bank_open(self.client):
+            if time.time() - idle_time >= 6:
+                ui.click_compass(self.client)
+                bank.open(self.client, "EAST")
+                wait(1.5, 2.5)
+                idle_time = time.time()
+            else:
+                self.client.log("Waiting to open the bank")
+                wait(.5, 1)
 
         # Empty inventory
         bank.bank_inventory(self.client)

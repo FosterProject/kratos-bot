@@ -36,7 +36,8 @@ def wait(min, max):
 
 def translate_tracker(predictions, confidence=0.5):
     bbox_result = []
-    predictions = [prediction for prediction in predictions if prediction["confidence"] > confidence]
+    predictions = [
+        prediction for prediction in predictions if prediction["confidence"] > confidence]
     for prediction in predictions:
         topleft = Pos(
             x=prediction["topleft"]["x"],
@@ -57,7 +58,8 @@ def translate_tracker(predictions, confidence=0.5):
 
 def translate_predictions(predictions, return_as_box=False, confidence=0.5):
     bbox_result = []
-    predictions = [prediction for prediction in predictions if prediction["confidence"] > confidence]
+    predictions = [
+        prediction for prediction in predictions if prediction["confidence"] > confidence]
     for prediction in predictions:
         topleft = imlib.upscale(Pos(
             x=prediction["topleft"]["x"],

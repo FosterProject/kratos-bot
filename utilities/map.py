@@ -21,11 +21,11 @@ class Map():
 
     CENTER = Pos(795, 83)
 
-    MAX_SECTION_LENGTH = 12
+    MAX_SECTION_LENGTH = 11
     MIN_SECTION_LENGTH = 8
 
     # Movement
-    MOVEMENT_IDLE_TIME_MAX = 2
+    MOVEMENT_IDLE_TIME_MAX = 1.5
 
     def __init__(self, map_path, host):
         self.grid = []
@@ -63,7 +63,7 @@ class Map():
                 rgba = img.getpixel((x, y))
                 goal = "A" if (rgba in Map.GOAL_A) else "B" if (
                     rgba in Map.GOAL_B) else None
-                walkable = (rgba in Map.WALKABLE) or (goal in ("A", "B"))
+                walkable = (rgba in Map.WALKABLE) or (rgba in (Map.GOAL_A[0], Map.GOAL_B[0]))
                 row.append(Tile(Pos(x + 1, y + 1), goal, walkable))
             self.grid.append(row)
 
@@ -90,6 +90,7 @@ class Map():
             closed_set.append(current_tile)
 
             if current_tile == self.end_tile:
+                print("Map:: Retracing path")
                 self.retrace_path()
                 return
 
@@ -149,7 +150,7 @@ class Map():
         next_pos = self.checkpoints[next_checkpoint].pos
 
         move_x = next_pos.x - current_pos.x
-        move_y = next_pos.y - current_pos.y
+        move_y = current_pos.y - next_pos.y
 
         self.current_checkpoint = next_checkpoint
 
@@ -186,7 +187,7 @@ class Map():
         tiles = []
         for row in self.grid:
             for tile in row:
-                if tile.goal == goal:
+                if tile.goal == goal and tile.walkable:
                     tiles.append(tile)
         return tiles
 
@@ -252,13 +253,27 @@ class Map():
         return np.array(client_handler.screenshot(host, regions.MAP).convert("L"))
 
 
+    @staticmethod
+    def find_pos_in_local_grid(pos, local_grid):
+        y = 0
+        for row in local_grid:
+            y += 1
+            x = 0
+            for item in row:
+                x += 1
+                if item is None:
+                    continue
+                if pos.x == item.x and pos.y == item.y:
+                    return Pos(x, y)
+        return None
+
 class Tile():
     def __init__(self, pos, goal, walkable):
         self.pos = pos
         self.goal = goal
         self.walkable = walkable
         self.highlight = False  # Debugging only
-        self.highlight_checkpoint = False
+        self.highlight_checkpoint = False  # Debugging only
 
         # Pathfinding
         self.gCost = 0  # Distance from start
@@ -286,8 +301,12 @@ class Tile():
         elif self.highlight:
             return " "
         elif self.goal == "A":
+            if not self.walkable:
+                return "A"
             return "a"
         elif self.goal == "B":
+            if not self.walkable:
+                return "B"
             return "b"
         elif self.goal == None:
             if self.walkable:

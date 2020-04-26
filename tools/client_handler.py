@@ -16,8 +16,8 @@ from tools.screen_pos import Pos, Box
 # USER DEFINED: Enter all client window names in this array
 REGISTERED_CLIENTS = [
     "BlueStacks",
-    "OSRS #2",
-    "OSRS #3",
+    # "OSRS #2",
+    # "OSRS #3",
     # "OSRS #4"
 ]
 # USER DEFINED: The default size of the host window

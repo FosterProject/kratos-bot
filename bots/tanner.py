@@ -88,10 +88,10 @@ class Tanner:
         self.map = Map(AL_KHARID_TANNER_PATH, self.client.host)
 
         # Login timers
-        self.min_login_time = 15 * 60
+        self.min_login_time = 45 * 60
         self.max_login_time = 280 * 60
         self.min_logout_time = 5 * 60
-        self.max_logout_time = 50 * 60
+        self.max_logout_time = 15 * 60
 
         # UI Timers
         self._true_north_timer = time.time()
@@ -304,6 +304,14 @@ class Tanner:
                 ui.spin_around(self.client)
                 attempts = 0
             attempts += 1
+
+            # Check that we are still in the tanner
+            if self.is_in_tanner() is False:
+                # Move back into tanner building
+                tanner_building_pos = self.client.set_threshold(.45).find(MOVEMENT["A"]["start_reference_image"], regions.MAP, True).center()
+                self.client.click(tanner_building_pos)
+                wait(3, 5)  # TODO: Use the Map check_is_moving method to securely say we've finished moving
+
             # Find tanner
             tanner_pos = self.find_tanner()
 
@@ -377,3 +385,14 @@ class Tanner:
 
         self.client.log("returning tanner pos")
         return tanner_pos
+
+    def is_in_tanner(self):
+        # Must be true north
+        ui.click_compass(self.client)
+        wait(.2, .4)
+
+        # TODO: Add error handling for when local_pos is None, try again with an attempt count and sys.exit() if failed too many times
+        local_pos = self.client.set_threshold(.45).find(MOVEMENT["A"]["start_reference_image"], regions.MAP, True)
+        x = Map.CENTER.x - local_pos.tl.x
+        y = Map.CENTER.y - local_pos.tl.y
+        return Map.find_pos_in_local_grid(Pos(x, y), MOVEMENT["A"]["start_reference_grid"]) is not None

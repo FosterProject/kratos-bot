@@ -2,6 +2,9 @@
 
 ## Installation
 
+* Extra pip packages: matplotlib, Cython, pywin32, keyboard
+* If you can't install win32api, install pywin32
+
 1. Create the virtual env: `conda create -n Kratos python=3.7.6 anaconda`
 2. Install tensorflow: `conda install -c anaconda tensorflow-gpu=1.15.0`
 3. Install opencv: `pip install opencv-python`

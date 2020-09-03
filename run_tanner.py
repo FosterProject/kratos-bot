@@ -1,3 +1,4 @@
+from bots import tanner
 import sys
 import threading
 import time
@@ -15,6 +16,8 @@ debug.reset_stream()
 
 # Constants
 EXIT_FLAG = False
+
+
 def stop():
     global EXIT_FLAG
     EXIT_FLAG = True
@@ -27,12 +30,12 @@ def exit_bot(bot):
 
 
 # Define bots
-from bots import tanner
 bot_clients = client_handler.get_clients()
 bots = []
 for name, client, host in bot_clients:
     client_handler.default_host_size(host)
-    bots.append({"bot": tanner.Tanner(Client(name, client, host), tanner.TAN_SOFT_LEATHER), "thread": None})
+    bots.append({"bot": tanner.Tanner(Client(name, client, host),
+                                      tanner.TAN_SOFT_LEATHER), "thread": None})
 
 # Run bots
 for bot in bots:

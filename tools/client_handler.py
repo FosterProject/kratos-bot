@@ -76,6 +76,8 @@ def get_client_dimensions(client):
 
 
 CLICK_LOCK = threading.Lock()
+
+
 def click(client, x, y):
     """ Posts a click event to the client window.
 
@@ -89,14 +91,16 @@ def click(client, x, y):
         pos = win32api.MAKELONG(x, y)
 
         win32api.PostMessage(client, win32con.WM_LBUTTONDOWN,
-                            win32con.MK_LBUTTON, pos)
+                             win32con.MK_LBUTTON, pos)
         time.sleep(.02)
         win32api.PostMessage(client, win32con.WM_LBUTTONUP,
-                            win32con.MK_LBUTTON, pos)
+                             win32con.MK_LBUTTON, pos)
         time.sleep(.05)
 
-    
+
 KEY_LOCK = threading.Lock()
+
+
 def keypress(client, host, key):
     """ Posts a keydown event to the client window.
         This function 'activates' the client window so that it can accept a keyevent.
@@ -115,7 +119,8 @@ def keypress(client, host, key):
         time.sleep(.05)
         win32api.PostMessage(client, win32con.WM_KEYUP, key, 0)
         time.sleep(delay)
-        win32api.PostMessage(host, win32con.WM_ACTIVATE, win32con.WA_INACTIVE, 0)
+        win32api.PostMessage(host, win32con.WM_ACTIVATE,
+                             win32con.WA_INACTIVE, 0)
         time.sleep(delay)
 
 
@@ -135,6 +140,8 @@ def default_host_size(host):
 
 
 SCREENSHOT_LOCK = threading.Lock()
+
+
 def screenshot(host, region=None, save=False, file_path=""):
     """ Takes a screenshot of a host window and crops it down to the client view.
         Returns the PIL.img variable or saves it to a file.
@@ -182,9 +189,10 @@ def screenshot(host, region=None, save=False, file_path=""):
         # PrintWindow Succeeded
         if result == 1:
             im = im.crop((2, 42, DEFAULT_CLIENT_SIZE_W +
-                        2, DEFAULT_CLIENT_SIZE_H + 42))
+                          2, DEFAULT_CLIENT_SIZE_H + 42))
             if region is not None:
-                im = im.crop((region.tl.x, region.tl.y, region.br.x, region.br.y))
+                im = im.crop((region.tl.x, region.tl.y,
+                              region.br.x, region.br.y))
             if save:
                 loc = "%s_temp" % host if file_path == "" else file_path
                 im.save("%s.png" % loc)

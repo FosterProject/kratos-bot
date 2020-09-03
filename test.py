@@ -1,32 +1,33 @@
-import win32con
-import time
+import numpy as np
 
-from tools import config
-from tools.client import Client
-from tools.screen_pos import Pos
-from tools import client_handler
-from data import regions
-from debug import debug
+# from bots import tanner
+# import win32con
+# import time
 
-from utilities import account
-from utilities import ui
-# from utilities import bank
-from utilities import inventory
-from utilities import movement
-from utilities.items import Item
-from utilities.map import Map
+# from tools import config
+# from tools.client import Client
+# from tools.screen_pos import Pos
+# from tools import client_handler
+# from data import regions
+# from debug import debug
 
-debug.reset_stream()
-config.DEBUG = True
+# from utilities import account
+# from utilities import ui
+# # from utilities import bank
+# from utilities import inventory
+# from utilities import movement
+# from utilities.items import Item
+# from utilities.map import Map
 
-clients = client_handler.get_clients()
-name, client, host = clients[0]
-c = Client(name, client, host)
+# debug.reset_stream()
+# config.DEBUG = True
 
-client_handler.default_host_size(host)
+# clients = client_handler.get_clients()
+# name, client, host = clients[0]
+# c = Client(name, client, host)
 
-# Test area
+# client_handler.default_host_size(host)
 
-from bots import tanner
-bot = tanner.Tanner(c, tanner.TAN_SOFT_LEATHER)
+# # Test area
 
+# bot = tanner.Tanner(c, tanner.TAN_SOFT_LEATHER)

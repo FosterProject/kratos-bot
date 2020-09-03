@@ -190,7 +190,7 @@ class Tanner:
                 th_attempts += 1
                 result = self.tan_hides()
                 if th_attempts >= 7:
-                    self.client.log("Tried 3 times to tan hides and failed")
+                    self.client.log("Tried 7 times to tan hides and failed")
                     sys.exit()
                 wait(1, 2)
             wait(.8, 1.3)
@@ -391,8 +391,16 @@ class Tanner:
         ui.click_compass(self.client)
         wait(.2, .4)
 
-        # TODO: Add error handling for when local_pos is None, try again with an attempt count and sys.exit() if failed too many times
-        local_pos = self.client.set_threshold(.45).find(MOVEMENT["A"]["start_reference_image"], regions.MAP, True)
+        local_pos = None
+        find_attempts = 0
+        while local_pos is None:
+            local_pos = self.client.set_threshold(.45).find(MOVEMENT["A"]["start_reference_image"], regions.MAP, True)
+            find_attempts += 1
+            # Spin if local_pos is still None
+            if local_pos is None:
+                ui.spin_around(self.client)
+                wait(1, 1.1)
+
         x = Map.CENTER.x - local_pos.tl.x
         y = Map.CENTER.y - local_pos.tl.y
         return Map.find_pos_in_local_grid(Pos(x, y), MOVEMENT["A"]["start_reference_grid"]) is not None

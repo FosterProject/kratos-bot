@@ -95,7 +95,7 @@ class Client:
 
     def warn(self, msg):
         debug.warn("[%s] - %s" % (self.name, msg))
-    
+
     def log(self, msg):
         console("[%s] - %s" % (self.name, msg))
 

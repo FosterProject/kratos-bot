@@ -1,3 +1,6 @@
 {
-    "python.pythonPath": "F:\\Languages\\Anaconda3\\envs\\Kratos\\python.exe"
+    "python.pythonPath": "F:\\Languages\\Anaconda3\\envs\\Kratos\\python.exe",
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.enabled": true
 }

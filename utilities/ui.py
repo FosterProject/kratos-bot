@@ -21,6 +21,8 @@ BAR_TAB_HEIGHT = 38
 # Images
 INVENTORY_ICON_ACTIVE = "bot_ref_imgs/ui/inv_icon_active.png"
 INVENTORY_FULL = "bot_ref_imgs/ui/inventory_full.png"
+SETTINGS_ICON_ACTIVE = "bot_ref_imgs/ui/settings_icon_active.png"
+SETTINGS_RESTORE_DEFAULT_ZOOM = "bot_ref_imgs/ui/restore_default_zoom.png"
 
 RUN_FULL = "bot_ref_imgs/ui/full_run.png"
 TAP_OPTION_ON = "bot_ref_imgs/ui/tap_option_on.png"
@@ -62,6 +64,7 @@ def inventory_full(client):
 def click_run_orb(client):
     client.click(regions.RUN_ORB.random_point())
 
+
 def run_full(client):
     return client.set_threshold(.8).find(RUN_FULL) is not None
 
@@ -80,6 +83,35 @@ def open_inventory(client):
 
 def click_compass(client):
     client.click(regions.COMPASS.random_point())
+
+
+def lock_zoom(client):
+    # Is settings open
+    settings_open = client.set_threshold(.8).find(SETTINGS_ICON_ACTIVE)
+    if not settings_open:
+        client.key(win32con.VK_F10)
+        wait(.1, .15)
+    
+    # Reset zoom level
+    click_tap_option(client, True)
+    wait(.2, .4)
+    client.click(regions.ZOOM_CONTROL.random_point())
+    wait(.2, .4)
+    rdz_pos = client.find(SETTINGS_RESTORE_DEFAULT_ZOOM)
+    if rdz_pos is None:
+        print("Fucked up")
+        return
+    client.click(rdz_pos)
+    wait(.2, .4)
+    click_tap_option(client, False)
+    wait(.2, .4)
+
+    # Lock zoom camera
+    client.click(regions.ZOOM_CONTROL.random_point())
+    wait(.2, .4)
+    
+    # Close settings again
+    client.key(win32con.VK_F10)
 
 
 def spin_around(client):

@@ -226,6 +226,10 @@ class Tanner:
                     self.min_login_time, self.max_login_time)
                 self.client.reset_login_time()
 
+                # Close bank
+                bank.close(self.client)
+                wait(.8, 1.2)
+
                 # Logout
                 self.client.info("... logging out ...")
                 account.logout(self.client)
@@ -239,29 +243,40 @@ class Tanner:
 
     def move(self, goal):
         while True:
-            local_pos = self.client.set_threshold(.45).find(MOVEMENT[goal]["start_reference_image"], regions.MAP, True)
-            while local_pos is None:
-                self.client.log("Attempting to pinpoint starting tile")
+            starting_tile_attempts = 0
+            check = None
+            while check is None and starting_tile_attempts < 5:
+                starting_tile_attempts += 1
                 local_pos = self.client.set_threshold(.45).find(MOVEMENT[goal]["start_reference_image"], regions.MAP, True)
-                wait(.3, .5)
-            x = Map.CENTER.x - local_pos.tl.x
-            y = Map.CENTER.y - local_pos.tl.y
-            check = Map.find_pos_in_local_grid(Pos(x, y), MOVEMENT[goal]["start_reference_grid"])
+                while local_pos is None:
+                    self.client.log("Attempting to pinpoint starting tile")
+                    local_pos = self.client.set_threshold(.45).find(MOVEMENT[goal]["start_reference_image"], regions.MAP, True)
+                    wait(.3, .5)
+                x = Map.CENTER.x - local_pos.tl.x
+                y = Map.CENTER.y - local_pos.tl.y
+                print(Pos(x, y))
+                check = Map.find_pos_in_local_grid(Pos(x, y), MOVEMENT[goal]["start_reference_grid"])
+
+                # Try adding 1 to x to see if that fixes the off by 1 weird error
+                if check is None:
+                    x += 1
+                    check = Map.find_pos_in_local_grid(Pos(x, y), MOVEMENT[goal]["start_reference_grid"])
+
             if check is None:
-                self.client.log("Movement - Not in expected starting tile, can't build")
+                self.client.log("Movement - Not in expected starting tile, can't build (tried 5 times):: last check pos = %s" % Pos(x, y))
                 return False
             
-            print(check)
+            # print(check)
 
             start_tile = self.map.translate_goal_region_pos_to_grid(MOVEMENT[goal]["starting_goal"], check)
-            print(start_tile)
+            # print(start_tile)
             self.map.set_start_tile(start_tile)
             self.map.set_end_tile(self.map.get_random_goal_tile(goal))
-            print(self.map.end_tile)
+            # print(self.map.end_tile)
 
             self.map.build_path()
             self.map.split_path()
-            self.map.print()  # Debug
+            # self.map.print()  # Debug
 
             while not self.map.finished_route:
                 self.map.move_to_next_checkpoint(self.client.client)
@@ -307,10 +322,22 @@ class Tanner:
 
             # Check that we are still in the tanner
             if self.is_in_tanner() is False:
+                # True north
+                ui.click_compass(self.client)
+                wait(.2, .4)
+
                 # Move back into tanner building
                 tanner_building_pos = self.client.set_threshold(.45).find(MOVEMENT["A"]["start_reference_image"], regions.MAP, True).center()
                 self.client.click(tanner_building_pos)
-                wait(3, 5)  # TODO: Use the Map check_is_moving method to securely say we've finished moving
+
+                # Wait until we stop moving
+                self.map.is_moving = True
+                while self.map.is_moving:
+                    self.map.check_is_moving(self.client.host)
+                    wait(.3, .5)
+                self.map.reset_map()
+
+                # wait(3, 5)  # TODO: Use the Map check_is_moving method to securely say we've finished moving
 
             # Find tanner
             tanner_pos = self.find_tanner()
@@ -343,10 +370,14 @@ class Tanner:
         return None
 
     def click_tan_all(self):
-        option_box = self.client.set_threshold(.8).find(
-            TAN_OPTION_BOX, return_box=True)
+        option_box = None
+        ob_attempts = 0
+        while option_box is None and ob_attempts <= 3:
+            ob_attempts += 1
+            option_box = self.client.set_threshold(.8).find(
+                TAN_OPTION_BOX, return_box=True)
         if option_box is None:
-            self.client.log("failed to find the tan option box, bot is exiting.")
+            self.client.log("failed to find the tan option box 3 times, bot is exiting.")
             self.client.exit()
             return
 
@@ -385,6 +416,25 @@ class Tanner:
 
         self.client.log("returning tanner pos")
         return tanner_pos
+
+    def is_in_goal(self, goal):
+        # Must be true north
+        ui.click_compass(self.client)
+        wait(.2, .4)
+
+        local_pos = None
+        find_attempts = 0
+        while local_pos is None:
+            local_pos = self.client.set_threshold(.45).find(MOVEMENT[goal]["start_reference_image"], regions.MAP, True)
+            find_attempts += 1
+            # Spin if local_pos is still None
+            if local_pos is None:
+                ui.spin_around(self.client)
+                wait(1, 1.1)
+
+        x = Map.CENTER.x - local_pos.tl.x
+        y = Map.CENTER.y - local_pos.tl.y
+        return Map.find_pos_in_local_grid(Pos(x, y), MOVEMENT[goal]["start_reference_grid"]) is not None
 
     def is_in_tanner(self):
         # Must be true north

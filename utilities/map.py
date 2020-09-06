@@ -207,6 +207,7 @@ class Map():
         self.current_checkpoint = None
         self.checkpoints = []
         self.finished_route = False
+        self.is_moving = False
         for row in self.grid:
             for tile in row:
                 tile.reset()

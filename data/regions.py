@@ -23,3 +23,6 @@ RUN_ORB = Box(Pos(708, 118), Pos(726, 134))
 # Inventory
 INVENTORY = Box(Pos(646, 203), Pos(831, 458))
 INVENTORY_ITEM_FIRST_POS = Pos(662, 211)
+
+# Settings
+ZOOM_CONTROL = Box(Pos(664, 260), Pos(682, 278))
